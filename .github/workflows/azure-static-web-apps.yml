@@ -41,7 +41,7 @@ jobs:
           action: "upload"
           app_location: "/" # Location of your app's source code
           api_location: "" # Location of your Azure Functions source code - set to empty if not using Azure Functions
-          output_location: "dist/shopping-history/browser" # Location of built application files
+          output_location: "dist/AI-Grocery-App" # Location of built application files
           app_build_command: "npm run build"
           skip_app_build: true # Since we're building in a separate step
 
