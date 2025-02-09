@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/ai-grocery-app/browser",
+            "outputPath": "dist/AI-Grocery-App",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
