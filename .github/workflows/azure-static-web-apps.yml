@@ -39,7 +39,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN  }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "dist/ai-grocery-app/browser" # Location of your app's source code
+          app_location: "dist/ai-grocery-app" # Location of your app's source code
           api_location: "" # Location of your Azure Functions source code - set to empty if not using Azure Functions
           output_location: "dist/ai-grocery-app/browser" # Location of built application files
           app_build_command: "npm run build"
