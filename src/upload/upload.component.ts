@@ -49,6 +49,7 @@ export class UploadComponent {
 
     const headers = new HttpHeaders({
       'x-ms-blob-type': 'BlockBlob',
+      'Content-Type': this.selectedFile.type,
       'x-ms-meta-email': this.userEmail || '',
       'x-ms-meta-familyId': '1' // Hardcoded, you can replace this with a dynamic value
     });
@@ -61,6 +62,6 @@ export class UploadComponent {
     }
   }
   closeUpload(){
-    
+
   }
 }

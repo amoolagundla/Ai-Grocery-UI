@@ -16,7 +16,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'reciepts',
+    path: 'receipts',
     component: RecieptsComponent,
     canActivate: [AuthGuard]
   },{
