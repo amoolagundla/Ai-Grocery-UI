@@ -3,4 +3,8 @@
 <div class="pb-16">  <!-- ✅ Ensure space at bottom -->
     <router-outlet></router-outlet>
   </div>
-<app-bottom-nav></app-bottom-nav>
+
+
+  <button (click)="triggerSuccess()">Show Success Notification</button>
+<button (click)="triggerError()">Show Error Notification</button>
+<app-bottom-nav></app-bottom-nav><notifier-container></notifier-container>

@@ -27,7 +27,7 @@
           </div>
         </div>
         <div class="px-4 py-3" *ngIf="showUploads">
-             <app-upload></app-upload>
+             <app-upload (closeupload)="handleCloseUpload()"> </app-upload>
         </div>
         <div class="px-4 py-3">
           <label class="flex flex-col min-w-40 h-12 w-full">
@@ -143,4 +143,4 @@
         </div>
       </div>
       
-    </div>
+    </div><notifier-container></notifier-container>

@@ -1,27 +1,29 @@
+ 
 <div class="relative flex size-full min-h-screen flex-col bg-white overflow-x-hidden">
-    <div class="flex items-center bg-white p-4 pb-2 justify-end">
-      <button (click)="closeUpload()" class="flex w-12 h-12 bg-transparent text-[#111418]">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-          <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path>
-        </svg>
-      </button>
-    </div>
-  
-    <h1 class="text-[#111418] text-[22px] font-bold px-4 pb-3 pt-5">Drag and drop your receipt</h1>
-    <p class="text-[#111418] text-base pb-3 pt-1 px-4">We'll analyze it in seconds.</p>
-  
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-      <input type="file" (change)="onFileSelected($event)" class="hidden" #fileInput />
-      <button (click)="fileInput.click()" class="w-full h-40 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
-        <span class="text-gray-500">Select a file</span>
-      </button>
-    </div>
-  
-    <div class="flex px-4 py-3">
-      <button (click)="getSignedUrl()"
-        class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#1980e6] text-white text-sm font-bold">
-        Upload File
-      </button>
-    </div>
+   
+
+  <h1 class="text-[#111418] text-[22px] font-bold px-4 pb-3 pt-5">Drag and drop your receipt</h1>
+  <p class="text-[#111418] text-base pb-3 pt-1 px-4">We'll analyze it in seconds.</p>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+    <input type="file" (change)="onFileSelected($event)" class="hidden" #fileInput />
+    <button (click)="fileInput.click()"
+      class="w-full h-40 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
+      <span class="text-gray-500">Select a file</span>
+    </button>
   </div>
-  
+
+
+
+  <!-- Section to display the uploaded file -->
+  <div *ngIf="imagePreview" class="image-preview">
+    
+    <img [src]="imagePreview" alt="Selected Image"  height="500" class="preview-image" />
+  </div>
+  <div class="flex px-4 py-3">
+    <button (click)="getSignedUrl()"
+      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#1980e6] text-white text-sm font-bold">
+      Upload File
+    </button>
+  </div>
+</div>

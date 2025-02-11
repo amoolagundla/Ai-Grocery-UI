@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncPipe, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common'; 
+import { AsyncPipe, CommonModule, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common'; 
 import { Purchase, PurchaseService } from '../services/purchase.service';
 import { Observable } from 'rxjs';
 import { UploadComponent } from "../upload/upload.component";
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http'; 
+import { NotifierModule } from 'angular-notifier';
 
 @Component({
   selector: 'app-purchase-history',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, NgFor, NgIf, UploadComponent,UploadComponent,HttpClientModule],
+  imports: [AsyncPipe, DatePipe, NgFor, NgIf,UploadComponent,UploadComponent,HttpClientModule,CommonModule,NotifierModule],
   templateUrl:  './purchase-history.component.html',
   styles: [`
     .purchase-history {
@@ -50,5 +51,8 @@ export class PurchaseHistoryComponent implements OnInit {
 
   gotouploadspage(){
     this.showUploads=!this.showUploads;
+  }
+  handleCloseUpload(){
+    this.showUploads=false;
   }
 }
