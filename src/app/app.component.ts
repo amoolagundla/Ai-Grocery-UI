@@ -4,10 +4,11 @@ import { GoogleAuthService } from '../services/google-auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { NgIf } from '@angular/common';
+import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,HeaderComponent,NgIf],
+  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
