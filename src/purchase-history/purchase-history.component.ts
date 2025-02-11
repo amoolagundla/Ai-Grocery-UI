@@ -7,29 +7,7 @@ import { Observable } from 'rxjs';
   selector: 'app-purchase-history',
   standalone: true,
   imports: [AsyncPipe, DatePipe, NgFor, NgIf],
-  template: `
-    <div class="purchase-history">
-      <h2>Purchase History</h2>
-      <div class="purchases" *ngIf="purchases$ | async as purchases">
-        <div *ngFor="let purchase of purchases" class="purchase-card">
-          <div class="purchase-header">
-            <h3>{{ purchase.store }}</h3>
-            <span>{{ purchase.date | date:'mediumDate' }}</span>
-          </div>
-          <div class="items">
-            <div *ngFor="let item of purchase.items" class="item">
-              <span>{{ item.name }}</span>
-              <span>{{ item.quantity }}x</span>
-              <span>{{ item.price  }}</span>
-            </div>
-          </div>
-          <div class="total">
-            Total: {{ purchase.total  }}
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl:  './purchase-history.component.html',
   styles: [`
     .purchase-history {
       padding: 2rem;

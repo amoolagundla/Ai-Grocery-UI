@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router'; 
 import { AuthService } from '../services/auth.service';
 import { GoogleAuthService } from '../services/google-auth.service';
@@ -6,12 +6,7 @@ import { GoogleAuthService } from '../services/google-auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  template: `
-    <div class="login-container">
-      <h1>Welcome to Shopping History</h1>
-      <div id="googleSignInButton"></div>
-    </div>
-  `,
+  templateUrl: './login.component.html',
   styles: [`
     .login-container {
       display: flex;
@@ -29,13 +24,17 @@ import { GoogleAuthService } from '../services/google-auth.service';
     }
   `]
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements OnInit,AfterViewInit {
   constructor(
     private authService: AuthService,
     private router: Router,
     private googleAuthService: GoogleAuthService
   ) {}
-
+  ngOnInit() {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/purchases']); //  
+    }
+  }
   ngAfterViewInit() {
     this.googleAuthService.loadGoogleAuth().then(() => {
       this.googleAuthService.renderGoogleButton();

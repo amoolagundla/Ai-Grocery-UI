@@ -8,16 +8,7 @@ import { Observable } from 'rxjs';
   selector: 'app-header',
   standalone: true,
   imports: [AsyncPipe, NgIf],
-  template: `
-    <header class="header">
-      <h1>Shopping History</h1>
-      <div class="profile" *ngIf="user$ | async as user">
-        <img [src]="user.photoURL" [alt]="user.name" class="profile-image">
-        <span class="user-name">{{ user.name }}</span>
-        <button (click)="logout()" class="logout-button">Logout</button>
-      </div>
-    </header>
-  `,
+  templateUrl:'./header.component.html'  ,
   styles: [`
     .header {
       display: flex;
