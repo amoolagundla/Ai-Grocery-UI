@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --legacy-peer-deps --configuration=production",
+    "build": "ng build --configuration=production",
     "build:azure": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
