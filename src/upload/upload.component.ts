@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient, HttpEvent, HttpEventType, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../services/auth.service';
-import { PrgressBarComponent } from '../components/prgress-bar/prgress-bar.component';
-import { CommonModule } from '@angular/common';
-import { NotifierService } from 'angular-notifier';
+import { AuthService } from '../services/auth.service'; 
+import { CommonModule } from '@angular/common'; 
 
 @Component({
   selector: 'app-upload',
@@ -21,7 +19,7 @@ export class UploadComponent {
   uploading = false;
   uploadedFileUrl: string | null = null;
   imagePreview: string | null = null;
-  constructor(private http: HttpClient, private authService: AuthService,private notifierService: NotifierService) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   ngOnInit() {
     // Get user email from Google Auth
@@ -81,12 +79,12 @@ export class UploadComponent {
     try {
       this.http.put(this.uploadUrl, this.selectedFile, { headers }).subscribe(
         (event: any) => {
-          this.notifierService.notify('success', 'File uploaded successfully!'); 
+           
           this.closeupload.emit(true);
         },
         () => {
           this.uploading = false;
-          this.notifierService.notify('error', 'Upload failed.!');  
+         
         }
       );
     } catch (error) {
