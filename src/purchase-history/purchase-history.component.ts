@@ -3,13 +3,12 @@ import { AsyncPipe, CommonModule, DatePipe, DecimalPipe, NgFor, NgIf } from '@an
 import { Purchase, PurchaseService } from '../services/purchase.service';
 import { Observable } from 'rxjs';
 import { UploadComponent } from "../upload/upload.component";
-import { HttpClient, HttpClientModule } from '@angular/common/http'; 
-import { NotifierModule } from 'angular-notifier';
+import { HttpClient, HttpClientModule } from '@angular/common/http';  
 
 @Component({
   selector: 'app-purchase-history',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, NgFor, NgIf,UploadComponent,UploadComponent,HttpClientModule,CommonModule,NotifierModule],
+  imports: [AsyncPipe, DatePipe, NgFor, NgIf,UploadComponent,UploadComponent,HttpClientModule,CommonModule],
   templateUrl:  './purchase-history.component.html',
   styles: [`
     .purchase-history {

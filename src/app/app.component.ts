@@ -4,11 +4,10 @@ import { GoogleAuthService } from '../services/google-auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CommonModule, NgIf } from '@angular/common';
-import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component';
-import {   NotifierModule, NotifierService } from 'angular-notifier';
+import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component'; 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,NotifierModule,CommonModule
+  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,  CommonModule
     
   ],
   templateUrl: './app.component.html',
@@ -16,10 +15,9 @@ import {   NotifierModule, NotifierService } from 'angular-notifier';
 })
 export class AppComponent   {
   title = 'AI-Grocery-App';
-  constructor(public authService: AuthService,private notifierService: NotifierService) {}
+  constructor(public authService: AuthService ) {}
 
-  showNotification(type: string, message: string): void {
-    this.notifierService.notify(type, message);
+  showNotification(type: string, message: string): void { 
   }
 
   triggerSuccess(): void {
