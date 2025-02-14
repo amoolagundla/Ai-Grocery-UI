@@ -1,1 +1,56 @@
-<p>reciepts works!</p>
+<div class="relative flex size-full min-h-screen flex-col bg-white justify-between group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
+
+    <!-- 🔥 Selected Receipt Viewer -->
+    <div *ngIf="selectedReceipt" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50">
+      <button (click)="closePreview()" class="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded shadow-lg">Close</button>
+      <img [src]="selectedReceipt.blobUrl" alt="Selected Receipt" class="max-w-lg max-h-[80vh] rounded-lg shadow-lg">
+    </div>
+  
+    <div>
+      <!-- 🔥 Header -->
+      <div class="flex items-center bg-white p-4 pb-2 justify-between">
+        <h2 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pl-12">Receipts</h2>
+        <div class="flex w-12 items-center justify-end">
+          <p class="text-[#637588] text-base font-bold leading-normal tracking-[0.015em] shrink-0">Upload</p>
+        </div>
+      </div>
+  
+      <!-- 🔥 Receipt List -->
+      <div *ngIf="loading" class="text-center text-gray-500">Loading receipts...</div>
+      <div *ngIf="errorMessage" class="text-red-500">{{ errorMessage }}</div>
+  
+      <div *ngFor="let receipt of receipts" class="flex items-center gap-4 bg-white px-4 py-3 justify-between cursor-pointer hover:bg-gray-100" (click)="selectReceipt(receipt)">
+        <div class="flex items-center gap-4">
+          <div class="bg-center bg-no-repeat aspect-video bg-cover rounded-lg h-14 w-20" [style.backgroundImage]="'url(' + receipt.blobUrl + ')'"></div>
+          <div class="flex flex-col justify-center">
+            <p class="text-[#111418] text-base font-medium leading-normal line-clamp-1">Receipt from {{ receipt.userId }}</p>
+            <p class="text-[#637588] text-sm font-normal leading-normal line-clamp-2">${{ receipt.receiptText.split(' ')[-1] }} · {{ receipt.createdAt | date: 'MMM d, y' }}</p>
+          </div>
+        </div>
+        <div class="shrink-0">
+          <a [href]="receipt.blobUrl" download class="text-[#111418] flex size-7 items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H72a8,8,0,0,1,0,16H32v64H224V136H184a8,8,0,0,1,0-16h40A16,16,0,0,1,240,136Zm-117.66-2.34a8,8,0,0,0,11.32,0l48-48a8,8,0,0,0-11.32-11.32L136,108.69V24a8,8,0,0,0-16,0v84.69L85.66,74.34A8,8,0,0,0,74.34,85.66ZM200,168a12,12,0,1,0-12,12A12,12,0,0,0,200,168Z"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+  
+      <div *ngIf="receipts.length === 0 && !loading" class="text-gray-500 text-center mt-4">
+        No receipts found.
+      </div>
+    </div>
+  
+    <!-- 🔥 Bottom Navigation -->
+    <div class="flex gap-2 border-t border-[#f0f2f4] bg-white px-4 pb-3 pt-2">
+      <a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-[#111418]" href="#">
+        <div class="text-[#111418] flex h-8 items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M216,40H40A16,16,0,0,0,24,56V208a8,8,0,0,0,11.58,7.15L64,200.94l28.42,14.21a8,8,0,0,0,7.16,0L128,200.94l28.42,14.21a8,8,0,0,0,7.16,0L192,200.94l28.42,14.21A8,8,0,0,0,232,208V56A16,16,0,0,0,216,40ZM176,144H80a8,8,0,0,1,0-16h96a8,8,0,0,1,0,16Zm0-32H80a8,8,0,0,1,0-16h96a8,8,0,0,1,0,16Z"></path>
+          </svg>
+        </div>
+        <p class="text-[#111418] text-xs font-medium leading-normal tracking-[0.015em]">Receipts</p>
+      </a>
+    </div>
+  </div>
+  

@@ -4,7 +4,5 @@
     <router-outlet></router-outlet>
   </div>
 
-
-  <button (click)="triggerSuccess()">Show Success Notification</button>
-<button (click)="triggerError()">Show Error Notification</button>
-<app-bottom-nav></app-bottom-nav><notifier-container></notifier-container>
+ 
+<app-bottom-nav *ngIf="authService.isLoggedIn()"></app-bottom-nav> 

@@ -3,12 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { GoogleAuthService } from '../services/google-auth.service';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component';
 import {   NotifierModule, NotifierService } from 'angular-notifier';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,NotifierModule
+  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,NotifierModule,CommonModule
     
   ],
   templateUrl: './app.component.html',
