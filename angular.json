@@ -33,8 +33,7 @@
             ],
             "styles": [
               "src/styles.css",
-              "tailwind.css" ,
-              "node_modules/angular-notifier/styles.css"
+              "tailwind.css"   
             ],
             "scripts": []
           },
