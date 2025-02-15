@@ -33,10 +33,7 @@ interface StoreItem {
         </div>
 
         <!-- Current Store Items -->
-        <div *ngIf="selectedStore" class="px-4 py-2">
-          <h2 class="text-[#111418] text-lg font-bold mb-4">
-            {{ selectedStore }}
-          </h2>
+        <div *ngIf="selectedStore" class="px-4 py-2"> 
           
           <div *ngFor="let item of getItemsFromStore()" class="mb-2">
             <label class="flex gap-x-3 py-3 flex-row-reverse justify-between items-center cursor-pointer">
