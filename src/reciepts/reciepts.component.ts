@@ -60,4 +60,52 @@ export class RecieptsComponent implements OnInit {
   closePreview(): void {
     this.selectedReceipt = null;
   }
+
+  extractStoreName(text: string): string {
+    const lines = text.split('\n');
+    return lines[0] || 'Unknown Store';
+  }
+
+  formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  parseReceiptItems(text: string): Array<{name: string, price: string}> {
+    const lines = text.split('\n');
+    const items: Array<{name: string, price: string}> = [];
+    
+    const priceRegex = /\d+\.\d{2}/;
+    
+    for (const line of lines) {
+      const priceMatch = line.match(priceRegex);
+      if (priceMatch) {
+        const price = priceMatch[0];
+        const name = line.replace(price, '').trim();
+        
+        // Filter out non-item lines (total, tax, etc.)
+        if (!line.toLowerCase().includes('total') && 
+            !line.toLowerCase().includes('tax') && 
+            !line.toLowerCase().includes('subtotal')) {
+          items.push({
+            name: name.replace(/[A-Z]\s*$/, '').trim(), // Remove single letter at end (usually category)
+            price: price
+          });
+        }
+      }
+    }
+    
+    return items;
+  }
+
+  extractTotal(text: string): string {
+    const totalMatch = text.match(/TOTAL\s+(\d+\.\d{2})/);
+    return totalMatch ? totalMatch[1] : '0.00';
+  }
 }
