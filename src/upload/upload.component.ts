@@ -1,97 +1,122 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient, HttpEvent, HttpEventType, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../services/auth.service'; 
-import { CommonModule } from '@angular/common'; 
+import { AuthService } from '../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-upload',
-  standalone: true,
-  imports: [CommonModule], 
+  selector: 'app-upload', 
+  imports:[CommonModule],
   templateUrl: './upload.component.html',
-  styleUrls: ['./upload.component.css'] 
+  styleUrls: ['./upload.component.css']
 })
 export class UploadComponent {
-  @Output() closeupload =new EventEmitter<boolean>(false);
-  selectedFile: File | null = null;
-  uploadUrl: string | null = null;
-  userEmail: string | null = null;
-  uploadProgress = 0;
+  @Output() closeupload = new EventEmitter<boolean>();
+  selectedFiles: File[] = [];
+  imagePreviews: string[] = [];
+  uploadProgress: number[] = [];
   uploading = false;
-  uploadedFileUrl: string | null = null;
-  imagePreview: string | null = null;
+  userEmail: string | null = null;
+  isDraggingOver = false; // UI effect for drag-and-drop area
+
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   ngOnInit() {
-    // Get user email from Google Auth
     this.authService.user$.subscribe(user => {
       if (user) {
         this.userEmail = user.email;
       }
     });
   }
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0] || null;
 
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
+  /** Handles file selection manually */
+  onFilesSelected(event: any) {
+    this.processFiles(event.target.files);
+  }
 
-      // Generate a preview URL for the selected image
+  /** Handles file dropping */
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingOver = false; // Reset drag effect
+
+    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+      this.processFiles(event.dataTransfer.files);
+    }
+  }
+
+  /** Handles file drag over */
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingOver = true;
+  }
+
+  /** Handles file drag leave */
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDraggingOver = false;
+  }
+
+  /** Processes selected or dropped files */
+  processFiles(files: FileList) {
+    for (let i = 0; i < files.length; i++) {
+      this.selectedFiles.push(files[i]);
+      this.uploadProgress.push(0); // Initialize progress tracking
+
       const reader = new FileReader();
       reader.onload = () => {
-        this.imagePreview = reader.result as string; // Set the preview URL
+        this.imagePreviews.push(reader.result as string);
       };
-      reader.readAsDataURL(this.selectedFile); // Read the file as a Data URL
+      reader.readAsDataURL(files[i]);
     }
-  } 
-  async getSignedUrl() {
-    if (!this.selectedFile) {
-      alert('Please select a file first.');
-      return;
-    }
+  }
 
-    const url = `https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction`;
-    
-    try {
-      const response: any = await this.http.get(url).toPromise();
-      this.uploadUrl = response.uploadUrl;
-      await this.uploadFile();
-    } catch (error) {
-      console.error('Error fetching signed URL:', error);
-    }
+  /** Removes a file */
+  removeFile(index: number) {
+    this.selectedFiles.splice(index, 1);
+    this.imagePreviews.splice(index, 1);
+    this.uploadProgress.splice(index, 1);
   }
-  isImageFile(url: string): boolean {
-    return /\.(jpg|jpeg|png|gif|bmp)$/i.test(url);
-  }
-  async uploadFile() {
-    if (!this.uploadUrl || !this.selectedFile) return;
+
+  /** Uploads all selected files */
+  async uploadFiles() {
+    if (!this.selectedFiles.length) return;
 
     this.uploading = true;
-    this.uploadProgress = 0;
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      await this.uploadSingleFile(i);
+    }
 
-    const headers = new HttpHeaders({
-      'x-ms-blob-type': 'BlockBlob',
-      'Content-Type': this.selectedFile.type,
-      'x-ms-meta-email': this.userEmail || '',
-      'x-ms-meta-familyId': '1' // Hardcoded, replace with dynamic value if needed
-    });
+    this.uploading = false;
+    this.closeupload.emit(true);
+  }
 
+  /** Uploads a single file with progress tracking */
+  async uploadSingleFile(index: number) {
     try {
-      this.http.put(this.uploadUrl, this.selectedFile, { headers }).subscribe(
-        (event: any) => {
-           
-          this.closeupload.emit(true);
-        },
-        () => {
-          this.uploading = false;
-         
-        }
-      );
+      // Get signed URL
+      const url = `https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction`;
+      const response: any = await this.http.get(url).toPromise();
+
+      const uploadUrl = response.uploadUrl;
+      const headers = new HttpHeaders({
+        'x-ms-blob-type': 'BlockBlob',
+        'Content-Type': this.selectedFiles[index].type,
+        'x-ms-meta-email': this.userEmail || '',
+        'x-ms-meta-familyId': '1' // Replace with actual family ID if needed
+      });
+
+      this.http.put(uploadUrl, this.selectedFiles[index], { headers, reportProgress: true, observe: 'events' })
+        .subscribe((event: HttpEvent<any>) => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            this.uploadProgress[index] = Math.round((100 * event.loaded) / event.total);
+          } else if (event.type === HttpEventType.Response) {
+            console.log('File uploaded successfully:', event.body);
+          }
+        });
     } catch (error) {
       console.error('Upload failed:', error);
     }
-  } 
-  closeUpload(){
-
   }
 }

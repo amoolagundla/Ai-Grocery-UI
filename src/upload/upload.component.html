@@ -1,29 +1,45 @@
- 
 <div class="relative flex size-full min-h-screen flex-col bg-white overflow-x-hidden">
-   
+  <h1 class="text-[#111418] text-[22px] font-bold px-4 pb-3 pt-5">Drag and drop your receipts</h1>
+  <p class="text-[#111418] text-base pb-3 pt-1 px-4">We'll analyze them in seconds.</p>
 
-  <h1 class="text-[#111418] text-[22px] font-bold px-4 pb-3 pt-5">Drag and drop your receipt</h1>
-  <p class="text-[#111418] text-base pb-3 pt-1 px-4">We'll analyze it in seconds.</p>
-
-  <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-    <input type="file" (change)="onFileSelected($event)" class="hidden" #fileInput />
-    <button (click)="fileInput.click()"
-      class="w-full h-40 flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
-      <span class="text-gray-500">Select a file</span>
+  <!-- Drag and Drop Area -->
+  <div 
+    class="w-full h-40 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer"
+    (drop)="onDrop($event)" 
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)">
+    
+    <input type="file" multiple (change)="onFilesSelected($event)" class="hidden" #fileInput />
+    <button (click)="fileInput.click()" class="text-gray-500">
+      Click to select files or drag and drop here
     </button>
   </div>
 
-
-
-  <!-- Section to display the uploaded file -->
-  <div *ngIf="imagePreview" class="image-preview">
-    
-    <img [src]="imagePreview" alt="Selected Image"  height="500" class="preview-image" />
+  <!-- Display selected files with progress bars -->
+  <div *ngIf="imagePreviews.length > 0" class="p-4">
+    <h2 class="text-[#111418] text-lg font-bold pb-2">Selected Files:</h2>
+    <div class="grid grid-cols-1 gap-3">   
+      <div *ngFor="let preview of imagePreviews; let i = index" class="relative">
+        <img [src]="preview" alt="Uploaded File" class="w-full h-32 object-cover rounded-lg border border-gray-300">
+        <button (click)="removeFile(i)" class="absolute top-1 right-1 bg-red-500 text-white p-1">
+          ✕
+        </button>
+        
+        <!-- Progress Bar for each file -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+          <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+               [style.width]="uploadProgress[i] + '%'">
+          </div>
+        </div>
+      </div>
+    </div> 
   </div>
+
+  <!-- Upload Button -->
   <div class="flex px-4 py-3">
-    <button (click)="getSignedUrl()"
-      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#1980e6] text-white text-sm font-bold">
-      Upload File
+    <button (click)="uploadFiles()" [disabled]="selectedFiles.length === 0 || uploading"
+      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#1980e6] text-white text-sm font-bold disabled:opacity-50">
+      Upload Files
     </button>
   </div>
 </div>
