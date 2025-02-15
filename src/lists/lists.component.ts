@@ -4,6 +4,11 @@ import { ShoppingListService } from '../services/ShoppingListService';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 
+interface StoreItem {
+  store: string;
+  item: string;
+}
+
 @Component({
   selector: 'app-lists',
   standalone: true,
@@ -20,54 +25,60 @@ import { HttpClientModule } from '@angular/common/http';
             [class.bg-blue-500]="selectedStore === store"
             (click)="filterByStore(store)"
           >
-            <p class="text-[#111418] text-sm font-medium leading-normal">{{ store }}</p>
+            <p class="text-[#111418] text-sm font-medium leading-normal"
+               [class.text-white]="selectedStore === store">
+               {{ store }}
+            </p>
           </div>
         </div>
 
-        <!-- Shopping List Form -->
-        <form [formGroup]="shoppingListForm">
+        <!-- Current Store Items -->
+        <div *ngIf="selectedStore" class="px-4 py-2">
+          <h2 class="text-[#111418] text-lg font-bold mb-4">
+            {{ selectedStore }}
+          </h2>
           
+          <div *ngFor="let item of getItemsFromStore()" class="mb-2">
+            <label class="flex gap-x-3 py-3 flex-row-reverse justify-between items-center cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="isItemAdded(item)"
+                (change)="toggleItem(item)"
+                class="h-5 w-5 rounded border-[#dce0e5] border-2 bg-transparent text-[#1980e6] 
+                       checked:bg-[#1980e6] checked:border-[#1980e6] checked:bg-[image:--checkbox-tick-svg] 
+                       focus:ring-0 focus:ring-offset-0 focus:border-[#dce0e5] focus:outline-none"
+              />
+              <span class="text-[#111418] text-base font-normal leading-normal flex-grow">{{ item }}</span>
+            </label>
+          </div>
+        </div>
 
-          <div class="px-4">
-            <div formArrayName="items" class="p-5">
-              <div *ngFor="let item of getItemsFromStore(); let i = index">
-                <label class="flex gap-x-3 py-3 flex-row-reverse justify-between">
-                  <input
-                    type="checkbox"
-                    [checked]="addedItems.has(item)"
-                    (change)="toggleItem(item)"
-                    class="h-5 w-5 rounded border-[#dce0e5] border-2 bg-transparent text-[#1980e6] checked:bg-[#1980e6] checked:border-[#1980e6] checked:bg-[image:--checkbox-tick-svg] focus:ring-0 focus:ring-offset-0 focus:border-[#dce0e5] focus:outline-none"
-                  />
-                  <div class="flex items-center gap-4">
-                     
-                    <p class="text-[#111418] text-base font-normal leading-normal">{{ item }}</p>
-                  </div>
-                </label>
-              </div>
+        <!-- Selected Items Summary -->
+        <div *ngIf="getSelectedItemsCount() > 0" class="mt-6 px-4">
+          <h3 class="text-[#111418] text-lg font-semibold mb-3">Selected Items</h3>
+          <div *ngFor="let storeGroup of getGroupedSelectedItems() | keyvalue" class="mb-4">
+            <div class="font-medium text-[#111418] mb-2">🏪 {{ storeGroup.key }}</div>
+            <div *ngFor="let item of storeGroup.value" class="ml-4 text-[#637588]">
+              - {{ item }}
             </div>
           </div>
-        </form>
-
-       
+        </div>
       </div>
+
+      <!-- Share Button -->
       <button 
-        (click)="shareViaWebShare()"
-        class="fixed bottom-6 right-6 flex items-center justify-center w-14 h-14 rounded-full bg-blue-500 text-white shadow-lg hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        style="z-index: 100000; margin-bottom: 31%;" aria-label="Share shopping list"
+        (click)="shareToWhatsApp()"
+        class="fixed bottom-2 right-6 flex items-center justify-center w-14 h-14 rounded-full bg-green-500 text-white shadow-lg hover:bg-green-600"
+        style="z-index: 100000; margin-bottom: 31%;"
+        aria-label="Share to WhatsApp"
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
           class="h-6 w-6" 
-          fill="none" 
           viewBox="0 0 24 24" 
-          stroke="currentColor"
+          fill="currentColor"
         >
-          <path 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            stroke-width="2" 
-            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-          />
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
       </button>
     </div>
@@ -78,8 +89,8 @@ export class ListsComponent implements OnInit {
   familyId: string = '1';
   selectedStore: string | null = null;
   previousLists: any[] = [];
-  storeItems: any = {}; // To store all store items
-  addedItems: Set<string> = new Set(); // Track added items
+  storeItems: { [store: string]: string[] } = {};
+  addedItems: Map<string, string> = new Map(); // key: item, value: store
 
   constructor(
     private fb: FormBuilder,
@@ -104,8 +115,10 @@ export class ListsComponent implements OnInit {
       this.addedItems.delete(item);
       console.log(`Removed: ${item}`);
     } else {
-      this.addedItems.add(item);
-      console.log(`Added: ${item}`);
+      if (this.selectedStore) {
+        this.addedItems.set(item, this.selectedStore);
+        console.log(`Added: ${item} from ${this.selectedStore}`);
+      }
     }
   }
 
@@ -137,20 +150,39 @@ export class ListsComponent implements OnInit {
     this.selectedStore = store;
   }
 
-  // Add method to save shopping list
+  isItemAdded(item: string): boolean {
+    return this.addedItems.has(item);
+  }
+
+  getSelectedItemsCount(): number {
+    return this.addedItems.size;
+  }
+
+  getGroupedSelectedItems(): { [store: string]: string[] } {
+    const grouped: { [store: string]: string[] } = {};
+    
+    this.addedItems.forEach((store, item) => {
+      if (!grouped[store]) {
+        grouped[store] = [];
+      }
+      grouped[store].push(item);
+    });
+    
+    return grouped;
+  }
+
   saveShoppingList(): void {
-    const selectedItems = Array.from(this.addedItems);
+    const groupedItems = this.getGroupedSelectedItems();
     const newList = {
       familyId: this.familyId,
-      storeName: this.selectedStore,
-      items: selectedItems,
+      items: groupedItems,
       createdDate: new Date()
     };
 
     this.shoppingListService.saveShoppingList(newList).subscribe({
       next: () => {
         alert('Shopping list saved successfully!');
-        this.loadPreviousLists(); // Refresh the lists
+        this.loadPreviousLists();
       },
       error: (err) => {
         console.error('Error saving shopping list:', err);
@@ -159,22 +191,21 @@ export class ListsComponent implements OnInit {
     });
   }
 
-  shareViaWebShare() {
-    const items = Array.from(this.addedItems);
+  shareToWhatsApp() {
+    const groupedItems = this.getGroupedSelectedItems();
+    let message = "Shopping List\n\n";
     
-    // Create message with store name if selected
-    const storeInfo = this.selectedStore ? `From ${this.selectedStore}:\n` : '';
-    const message = `Shopping List\n${storeInfo}- ${items.join('\n- ')}`;
+    Object.entries(groupedItems).forEach(([store, items]) => {
+      message += `🏪 ${store}:\n`;
+      items.forEach(item => {
+        message += `- ${item}\n`;
+      });
+      message += '\n';
+    });
 
-    // Encode the message for URL
+    message += `\nCreated: ${new Date().toLocaleDateString()}`;
     const encodedMessage = encodeURIComponent(message);
-
-    // Create WhatsApp URL
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
-
-    // Open in new tab
     window.open(whatsappUrl, '_blank');
   }
-
-
 }
