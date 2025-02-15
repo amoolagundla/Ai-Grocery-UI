@@ -13,7 +13,7 @@ import { HttpClientModule } from '@angular/common/http';
     <div class="relative flex size-full min-h-screen flex-col bg-white justify-between group/design-root overflow-x-hidden">
       <div>
         <!-- Store Filter Section -->
-        <div class="flex gap-3 p-1 overflow-x-auto">
+        <div class="flex gap-3 p-5 overflow-x-auto">
           <div
             *ngFor="let store of getStoreNames()"
             class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-xl bg-[#f0f2f4] pl-4 pr-4 cursor-pointer"
