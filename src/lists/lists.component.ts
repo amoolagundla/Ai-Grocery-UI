@@ -87,7 +87,8 @@ export class ListsComponent implements OnInit {
   selectedStore: string | null = null;
   previousLists: any[] = [];
   storeItems: { [store: string]: string[] } = {};
-  addedItems: Map<string, string> = new Map(); // key: item, value: store
+  addedItems: Map<string, string> = new Map();
+  loading$: any ;
 
   constructor(
     private fb: FormBuilder,
@@ -100,7 +101,22 @@ export class ListsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadPreviousLists();
+    this.loading$ = this.shoppingListService.isLoading;
+    // Subscribe to the shopping lists observable
+    this.shoppingListService.getShoppingLists(this.familyId).subscribe({
+      next: (data) => {
+        this.previousLists = data;
+        if (data.length > 0) {
+          this.storeItems = data[0].storeItems;
+          if (!this.selectedStore && this.getStoreNames().length > 0) {
+            this.filterByStore(this.getStoreNames()[0]);
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error loading shopping lists:', error);
+      }
+    });
   }
 
   get items(): FormArray {
@@ -120,20 +136,25 @@ export class ListsComponent implements OnInit {
   }
 
   async loadPreviousLists(): Promise<void> {
+    
     this.shoppingListService.getShoppingLists(this.familyId).subscribe({
       next: (data) => {
         this.previousLists = data;
         if (data.length > 0) {
           this.storeItems = data[0].storeItems;
-          this.filterByStore(this.getStoreNames()[0]);
+          if (!this.selectedStore && this.getStoreNames().length > 0) {
+            this.filterByStore(this.getStoreNames()[0]);
+          }
         }
+         
       },
       error: (err) => {
         console.error('Error fetching shopping lists:', err);
-        alert('Failed to load shopping lists.');
+         
       }
     });
   }
+ 
 
   getStoreNames(): string[] {
     return Object.keys(this.storeItems || {});

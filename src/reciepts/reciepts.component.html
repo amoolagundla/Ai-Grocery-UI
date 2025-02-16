@@ -65,9 +65,10 @@
    <div class="flex flex-col md:flex-row gap-4 p-4 overflow-y-auto">
      <!-- Receipt Image -->
      <div class="md:w-1/2">
-       <img [src]="selectedReceipt.blobUrl" 
-            alt="Receipt Image" 
-            class="rounded-lg shadow-lg max-h-[60vh] w-full object-contain">
+      <app-cached-image 
+  [src]="selectedReceipt.blobUrl"  
+></app-cached-image>
+        
      </div>
 
      <!-- Receipt Text -->

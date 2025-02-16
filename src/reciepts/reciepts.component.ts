@@ -2,6 +2,9 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { ReceiptsService } from '../services/ReceiptsService';
+import { CachedImageComponent } from "../components/image-cache/CachedImageComponent";
+import { ReactiveFormsModule } from '@angular/forms';
 interface Receipt {
   id: string;
   userId: string;
@@ -13,9 +16,12 @@ interface Receipt {
 @Component({
   selector: 'app-reciepts',
   imports: [
-    CommonModule,HttpClientModule  // ✅ Ensures date pipe is available
-  ],
-  providers:[AuthService],
+    CommonModule, 
+    HttpClientModule,
+    ReactiveFormsModule,
+    CachedImageComponent
+],
+  providers: [AuthService, ReceiptsService],
   templateUrl: './reciepts.component.html',
   styleUrl: './reciepts.component.css'
 })
@@ -26,10 +32,12 @@ export class RecieptsComponent implements OnInit {
   errorMessage: string = '';
   userEmail!: string;
 
-  constructor(private http: HttpClient,private auth:AuthService) {}
+  constructor(
+    private auth: AuthService,
+    private receiptsService: ReceiptsService
+  ) {}
 
   ngOnInit(): void {
-   
     this.auth.user$.subscribe(user => {
       if (user) {
         this.userEmail = user.email;
@@ -39,18 +47,37 @@ export class RecieptsComponent implements OnInit {
   }
 
   fetchReceipts(): void {
-    this.http.get<Receipt[]>('https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/receipts?email='+ this.userEmail)
-      .subscribe({
-        next: (data) => {
-          this.receipts = data;
-          this.loading = false;
-        },
-        error: (error) => {
-          this.errorMessage = 'Error fetching receipts.';
-          this.loading = false;
-          console.error(error);
-        }
-      });
+    this.loading = true;
+    this.errorMessage = '';
+    
+    this.receiptsService.getReceipts(this.userEmail).subscribe({
+      next: (data) => {
+        this.receipts = data;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Error fetching receipts.';
+        this.loading = false;
+        console.error(error);
+      }
+    });
+  }
+
+  refreshReceipts(): void {
+    this.loading = true;
+    this.errorMessage = '';
+    
+    this.receiptsService.forceRefresh(this.userEmail).subscribe({
+      next: (data) => {
+        this.receipts = data;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Error refreshing receipts.';
+        this.loading = false;
+        console.error(error);
+      }
+    });
   }
 
   selectReceipt(receipt: Receipt): void {

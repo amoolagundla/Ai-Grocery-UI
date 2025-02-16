@@ -8,7 +8,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 @Component({
   selector: 'app-purchase-history',
   standalone: true,
-  imports: [AsyncPipe, DatePipe, NgFor, NgIf,UploadComponent,UploadComponent,HttpClientModule,CommonModule],
+  imports: [ NgIf,UploadComponent,UploadComponent,HttpClientModule,CommonModule],
   templateUrl:  './purchase-history.component.html',
   styles: [`
     .purchase-history {
