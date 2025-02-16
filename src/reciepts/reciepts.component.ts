@@ -5,6 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { ReceiptsService } from '../services/ReceiptsService';
 import { CachedImageComponent } from "../components/image-cache/CachedImageComponent";
 import { ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 interface Receipt {
   id: string;
   userId: string;
@@ -31,6 +32,8 @@ export class RecieptsComponent implements OnInit {
   loading: boolean = true;
   errorMessage: string = '';
   userEmail!: string;
+  loading$:any;
+  private subscriptions = new Subscription();
 
   constructor(
     private auth: AuthService,
@@ -38,43 +41,48 @@ export class RecieptsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.auth.user$.subscribe(user => {
-      if (user) {
-        this.userEmail = user.email;
-        this.fetchReceipts();
-      }
-    });
+    this.loading$ = this.receiptsService.loading$;
+    this.subscriptions.add(
+      this.auth.user$.subscribe(user => {
+        if (user) {
+          this.userEmail = user.email;
+          this.fetchReceipts();
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      this.receiptsService.receipts$.subscribe({
+        next: (data:any) => {
+          this.receipts = data;
+        },
+        error: (error:any) => {
+          this.errorMessage = 'Error fetching receipts.';
+          console.error(error);
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   fetchReceipts(): void {
-    this.loading = true;
     this.errorMessage = '';
-    
     this.receiptsService.getReceipts(this.userEmail).subscribe({
-      next: (data) => {
-        this.receipts = data;
-        this.loading = false;
-      },
-      error: (error) => {
+      error: (error:any) => {
         this.errorMessage = 'Error fetching receipts.';
-        this.loading = false;
         console.error(error);
       }
     });
   }
 
   refreshReceipts(): void {
-    this.loading = true;
     this.errorMessage = '';
-    
     this.receiptsService.forceRefresh(this.userEmail).subscribe({
-      next: (data) => {
-        this.receipts = data;
-        this.loading = false;
-      },
-      error: (error) => {
+      error: (error:any) => {
         this.errorMessage = 'Error refreshing receipts.';
-        this.loading = false;
         console.error(error);
       }
     });
