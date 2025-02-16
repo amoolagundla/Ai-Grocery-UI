@@ -1,7 +1,8 @@
 {
   "appData": {
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
+  "index": "/index.html",
   "assetGroups": [
     {
       "name": "app",
@@ -16,6 +17,42 @@
           "/assets/**",
           "/manifest.webmanifest"
         ]
+      }
+    },
+    {
+      "name": "images",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "urls": [
+          "https://reciepts.blob.core.windows.net/receipts/**"
+        ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-data",
+      "urls": [
+        "https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 100,
+        "maxAge": "7d",
+        "timeout": "10s"
+      }
+    },
+    {
+      "name": "api-images",
+      "urls": [
+        "https://reciepts.blob.core.windows.net/receipts/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 50,
+        "maxAge": "7d",
+        "timeout": "5s"
       }
     }
   ]
