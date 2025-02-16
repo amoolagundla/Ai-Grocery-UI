@@ -78,7 +78,7 @@ export class ReceiptsService {
       finalize(() => this.loadingSubject.next(false))
     );
   }
-
+    
   getReceipts(email: string): Observable<Receipt[]> {
     const cachedData = this.getFromCache(email);
 

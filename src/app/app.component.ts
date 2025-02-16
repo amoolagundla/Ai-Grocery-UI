@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component'; 
 import { environment } from '../assets/environment';
+import { SwUpdate } from '@angular/service-worker';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,  CommonModule ],
@@ -14,7 +15,14 @@ import { environment } from '../assets/environment';
 })
 export class AppComponent   {
   title = 'AI-Grocery-App';
-  constructor(public authService: AuthService ) {}
+  constructor(public authService: AuthService,private updates: SwUpdate) {
+    this.updates.checkForUpdate().then((value:boolean)=>{
+      if (value)
+        if(confirm('A new version is available. Load the new version?')) {
+        window.location.reload();
+      }
+    });
+  } 
 
   showNotification(type: string, message: string): void { 
   }
