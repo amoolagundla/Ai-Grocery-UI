@@ -1,0 +1,44 @@
+{
+    "assetGroups": [
+      {
+        "name": "app",
+        "installMode": "prefetch",
+        "updateMode": "prefetch",
+        "resources": {
+          "files": [
+            "/favicon.ico",
+            "/index.html",
+            "/*.css",
+            "/*.js"
+          ]
+        }
+      },
+      {
+        "name": "images",
+        "installMode": "lazy",
+        "updateMode": "prefetch",
+        "resources": {
+          "urls": [
+            "/assets/images/**",
+            "https://reciepts.blob.core.windows.net/receipts/**"
+          ],
+          "versionedFiles": []
+        }
+      }
+    ],
+    "dataGroups": [
+      {
+        "name": "api-images",
+        "urls": [
+          "https://reciepts.blob.core.windows.net/receipts/**"
+        ],
+        "cacheConfig": {
+          "strategy": "freshness",
+          "maxSize": 50,
+          "maxAge": "7d",
+          "timeout": "10s"
+        }
+      }
+    ]
+  }
+  

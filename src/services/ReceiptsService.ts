@@ -24,10 +24,10 @@ export class ReceiptsService {
   private apiBaseUrl = 'https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api';
   private cacheKey = 'receipts_cache';
   private cacheDuration = 5 * 60 * 1000; // 5 minutes
-  
+
   private receiptsSubject = new BehaviorSubject<Receipt[]>([]);
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  
+
   public loading$ = this.loadingSubject.asObservable();
   public receipts$ = this.receiptsSubject.asObservable();
 
@@ -55,6 +55,7 @@ export class ReceiptsService {
       const now = Date.now();
 
       if (now - cacheData.timestamp > this.cacheDuration) {
+        console.warn('Cache expired, fetching fresh data...');
         localStorage.removeItem(`${this.cacheKey}_${email}`);
         return null;
       }
@@ -68,45 +69,41 @@ export class ReceiptsService {
 
   private fetchFromApi(email: string): Observable<Receipt[]> {
     this.loadingSubject.next(true);
-    
     return this.http.get<Receipt[]>(`${this.apiBaseUrl}/receipts?email=${email}`).pipe(
-      tap(data => {
-        this.saveToCache(data, email);
-      }),
+      tap(data => this.saveToCache(data, email)), // Save fresh data to cache
       catchError(error => {
         console.error('Error fetching receipts:', error);
-        return of([]);
+        return of([]); // Return empty list on failure (prevents crash)
       }),
-      finalize(() => {
-        this.loadingSubject.next(false);
-      })
+      finalize(() => this.loadingSubject.next(false))
     );
   }
 
   getReceipts(email: string): Observable<Receipt[]> {
-    // First check cache
     const cachedData = this.getFromCache(email);
+
     if (cachedData) {
-      this.receiptsSubject.next(cachedData);
-      // Fetch in background to update cache
+      this.receiptsSubject.next(cachedData); // Load cache first
+      console.info('Loaded receipts from cache');
+
+      // Fetch in the background but don't block UI
       this.fetchFromApi(email).subscribe();
     } else {
-      // If no cache, fetch from API
-      this.fetchFromApi(email).subscribe(data => {
-        this.receiptsSubject.next(data);
-      });
+      console.warn('No cache found, fetching from API...');
+      this.fetchFromApi(email).subscribe(data => this.receiptsSubject.next(data));
     }
 
-    // Return the subject as an observable
     return this.receipts$;
   }
 
   forceRefresh(email: string): Observable<Receipt[]> {
+    console.info('Forcing refresh: Clearing cache and fetching fresh data');
     this.clearCache(email);
     return this.fetchFromApi(email);
   }
 
   clearCache(email: string): void {
+    console.warn('Cache cleared');
     localStorage.removeItem(`${this.cacheKey}_${email}`);
     this.receiptsSubject.next([]);
   }
