@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   /** ✅ Clear user data on logout */
-  logout(): void {
+  public logout(): void {
     localStorage.removeItem('user');  // ✅ Remove from localStorage
     this.user.next(null);
   }

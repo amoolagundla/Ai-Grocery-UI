@@ -5,11 +5,10 @@ import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component'; 
+import { environment } from '../assets/environment';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,  CommonModule
-    
-  ],
+  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,  CommonModule ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -28,3 +27,4 @@ export class AppComponent   {
     this.showNotification('error', 'This is an error notification!');
   }
 }
+

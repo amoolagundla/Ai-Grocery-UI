@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "931057592777",
+    "project_id": "ai-grocery-a",
+    "storage_bucket": "ai-grocery-a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931057592777:android:ea8da965969f682985a018",
+        "android_client_info": {
+          "package_name": "com.AI.AIGroceryApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "931057592777-dp08imn7dim7v1jmktagb4gsfgg3kpna.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.AI.AIGroceryApp",
+            "certificate_hash": "a7dc161bc55a8c27f15a6227117f8aa6a7452b46"
+          }
+        },
+        {
+          "client_id": "931057592777-vphhd1p6766uqqp7brqki9vun0drgu18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBAjzoEzLwh8yD2iq3WYxQAlgyUoM_d9Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "931057592777-vphhd1p6766uqqp7brqki9vun0drgu18.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
