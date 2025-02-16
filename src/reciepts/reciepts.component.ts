@@ -22,7 +22,7 @@ interface Receipt {
     ReactiveFormsModule,
     CachedImageComponent
 ],
-  providers: [AuthService, ReceiptsService],
+  providers: [AuthService, ReceiptsService], 
   templateUrl: './reciepts.component.html',
   styleUrl: './reciepts.component.css'
 })

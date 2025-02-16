@@ -1,11 +1,18 @@
 import { Component, Input, OnInit } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { ImageCacheService } from '../../services/ImageCacheService'; 
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-cached-image',
   standalone: true,
-  imports: [CommonModule ],
+  imports: [
+    CommonModule,
+    HttpClientModule  // Make sure this is included
+  ],
+  providers: [
+    ImageCacheService
+  ],
   template: `
     <div class="image-container">
       <img 
@@ -13,7 +20,7 @@ import { ImageCacheService } from '../../services/ImageCacheService';
         [alt]="alt"
         (error)="onImageError()"
         [class.loading]="loading"
-        class="image"
+        class="max-w-lg max-h-[80vh] rounded-lg shadow-lg"
       />
       <div *ngIf="loading" class="loading-overlay">
         <div class="loading-spinner"></div>

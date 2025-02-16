@@ -33,7 +33,7 @@ interface StoreItem {
         </div>
 
         <!-- Current Store Items -->
-        <div *ngIf="selectedStore" class="px-4 py-2"> 
+        <div *ngIf="selectedStore" class="p-10"> 
           
           <div *ngFor="let item of getItemsFromStore()" class="mb-2">
             <label class="flex gap-x-3 py-3 flex-row-reverse justify-between items-center cursor-pointer">
