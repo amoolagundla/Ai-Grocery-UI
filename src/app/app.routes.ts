@@ -4,6 +4,7 @@ import { LoginComponent } from '../login/login.component';
 import { PurchaseHistoryComponent } from '../purchase-history/purchase-history.component';
 import { RecieptsComponent } from '../reciepts/reciepts.component';
 import { ListsComponent } from '../lists/lists.component';
+import { FamilygroupsComponent } from './familygroups/familygroups.component';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,11 @@ export const routes: Routes = [
   },{
     path: 'lists',
     component: ListsComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'family',
+    component: FamilygroupsComponent,
     canActivate: [AuthGuard]
   },
   {
