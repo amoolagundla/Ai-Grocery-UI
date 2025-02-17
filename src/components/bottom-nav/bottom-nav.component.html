@@ -65,9 +65,11 @@
         </a>
 
         <a [routerLink]="'/family'" 
-             class="relative flex flex-1 flex-col items-center justify-end gap-1 text-[#637588]">
-            <div class="text-[#637588] flex h-8 items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+             class="flex flex-1 flex-col items-center justify-end gap-1 transition-all duration-200 ease-in-out">
+            <div class="flex h-12 items-center justify-center rounded-full p-2">
+              <svg xmlns="http://www.w3.org/2000/svg" 
+              [class]="isActive('/family') ? ' ' : 'text-gray-500 hover:text-gray-700'"  class="transition-colors duration-200"
+              width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                 <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
               </svg>
               <!-- Notification Badge -->
@@ -77,7 +79,8 @@
                 {{ count }}
               </div>
             </div>
-            <p class="text-[#637588] text-xs font-medium leading-normal tracking-[0.015em]">Profile</p>
+            <p class="text-xs font-medium leading-normal tracking-[0.015em] transition-colors duration-200" [class.text-blue-600]="isActive('/family')"
+            [class.text-gray-500]="!isActive('/family')">Profile</p>
           </a>
       </div>
     </div>

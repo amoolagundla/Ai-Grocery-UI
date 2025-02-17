@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service'; 
 import { Family, FamilyInvite, FamilyService } from '../../services/FamilyService';
 
 @Component({
@@ -10,17 +10,16 @@ import { Family, FamilyInvite, FamilyService } from '../../services/FamilyServic
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container mx-auto">
-      <!-- Family Groups Section -->
-      <section class="mb-8" *ngIf="families.length > 0">
+      <!-- Family Group Section -->
+      <section class="mb-8" *ngIf="currentFamily">
         <h2 class="text-[#0e141b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5">
-          Your Family Groups
+          Your Family Group
         </h2>
         
-        <div *ngIf="!loading" class="grid gap-4 px-4">
-          <div *ngFor="let family of families" 
-               class="p-4 rounded-xl bg-[#e7edf3]">
-            <h3 class="text-[#0e141b] text-lg font-bold">{{family.familyName}}</h3>
-            <p class="text-[#4e7397]">Primary Contact: {{family.primaryEmail}}</p>
+        <div class="px-4">
+          <div class="p-4 rounded-xl bg-[#e7edf3]">
+            <h3 class="text-[#0e141b] text-lg font-bold">{{currentFamily.familyName}}</h3>
+            <p class="text-[#4e7397]">Primary Contact: {{currentFamily.primaryEmail}}</p>
           </div>
         </div>
       </section>
@@ -47,14 +46,14 @@ import { Family, FamilyInvite, FamilyService } from '../../services/FamilyServic
         </p>
         
         <div class="flex px-4 py-3">
-        <button
-    (click)="sendInvite()"
-    [disabled]="!inviteEmail"
-    class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#308ce8] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
-    [class.opacity-50]="!inviteEmail"
->
-    <span class="truncate">Send Invitation</span>
-</button>
+          <button
+            (click)="sendInvite()"
+            [disabled]="!inviteEmail || !familyService.getFamilyId()"
+            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#308ce8] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
+            [class.opacity-50]="!inviteEmail || !familyService.getFamilyId()"
+          >
+            <span class="truncate">Send Invitation</span>
+          </button>
         </div>
       </section>
 
@@ -102,15 +101,10 @@ import { Family, FamilyInvite, FamilyService } from '../../services/FamilyServic
         <p>{{successMessage}}</p>
       </div>
     </div>
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  `
 })
 export class FamilygroupsComponent implements OnInit {
-  families: Family[] = [];
+  currentFamily: Family | null = null;
   invites: FamilyInvite[] = [];
   loading = true;
   error = '';
@@ -119,7 +113,7 @@ export class FamilygroupsComponent implements OnInit {
   user: any;
 
   constructor(
-    private familyService: FamilyService,
+    public familyService: FamilyService,
     private authService: AuthService
   ) {}
 
@@ -128,63 +122,67 @@ export class FamilygroupsComponent implements OnInit {
   }
 
   async loadData() {
+    // Subscribe to both user and family state
     this.authService.user$.subscribe(user => {
       if (user?.email) {
         this.user = user;
-        this.fetchFamilies(user.email);
+        this.fetchFamilyDetails(user.email);
         this.fetchInvites(user.email);
       }
     });
   }
-  fetchFamilies(email: string) {
-    this.familyService.getFamilies(email).subscribe({
-        next: (families) => {
-            console.log('Families:', families); // Add this
-            this.families = families;
-            this.loading = false;
+
+  fetchFamilyDetails(email: string) {
+    // Use the familyId from the service
+    const familyId = this.familyService.getFamilyId();
+    if (familyId) {
+      this.familyService.getFamilyDetails(familyId).subscribe({
+        next: (family:any) => {
+          console.log('Current family:', family);
+          this.currentFamily = family;
+          this.loading = false;
         },
-        error: (error) => {
-            console.error('Family fetch error:', error); // Add this
-            this.error = 'Failed to load families';
-            this.loading = false;
+        error: (error:any) => {
+          console.error('Family fetch error:', error);
+          this.error = 'Failed to load family details';
+          this.loading = false;
         }
-    });
-}
+      });
+    }
+  }
 
   fetchInvites(email: string) {
     this.familyService.getPendingInvites(email).subscribe({
-      next: (invites) => {
+      next: (invites:any) => {
         this.invites = invites;
       },
-      error: (error) => {
+      error: (error:any) => {
         this.error = 'Failed to load invites';
       }
     });
   }
 
   sendInvite() {
-    if (!this.user?.email || !this.inviteEmail) return; // Remove !this.families.length check
+    if (!this.user?.email || !this.inviteEmail) return;
 
-    // Make sure to use correct case for ID/id
-    const familyId = this.families[0]?.Id || this.families[0]?.Id;
-    
+    const familyId = this.familyService.getFamilyId();
     if (!familyId) {
-        this.error = 'No family ID found';
-        return;
+      this.error = 'Family ID not found';
+      return;
     }
     
     this.familyService.sendInvite(familyId, this.inviteEmail, this.user.email).subscribe({
-        next: () => {
-            this.successMessage = 'Invitation sent successfully!';
-            this.inviteEmail = '';
-            setTimeout(() => this.successMessage = '', 3000);
-        },
-        error: (error) => {
-            this.error = 'Failed to send invitation';
-            setTimeout(() => this.error = '', 3000);
-        }
+      next: () => {
+        this.successMessage = 'Invitation sent successfully!';
+        this.inviteEmail = '';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error:any) => {
+        this.error = 'Failed to send invitation';
+        setTimeout(() => this.error = '', 3000);
+      }
     });
-}
+  }
 
   processInvite(inviteId: string, action: 'accept' | 'reject') {
     this.familyService.processInvite(inviteId, action).subscribe({
@@ -193,7 +191,7 @@ export class FamilygroupsComponent implements OnInit {
         this.loadData();
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: (error) => {
+      error: (error:any) => {
         this.error = `Failed to ${action} invitation`;
         setTimeout(() => this.error = '', 3000);
       }
