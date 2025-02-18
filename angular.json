@@ -29,7 +29,7 @@
                 "glob": "routes.json",
                 "input": "src",
                 "output": "/"
-              },"manifest.webmanifest"
+              },"src/manifest.webmanifest"
             ],
             "styles": [
               "src/styles.css",
