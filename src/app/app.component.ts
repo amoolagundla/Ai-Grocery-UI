@@ -8,9 +8,10 @@ import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.componen
 import { environment } from '../assets/environment';
 import { SwUpdate } from '@angular/service-worker';
 import { FamilyService } from '../services/FamilyService';
+import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,HeaderComponent,NgIf,BottomNavComponent,  CommonModule ],
+  imports: [RouterOutlet, HeaderComponent, NgIf, BottomNavComponent, CommonModule, PwaInstallComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
