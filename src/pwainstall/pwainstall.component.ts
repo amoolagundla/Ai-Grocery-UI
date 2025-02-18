@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
             Install
           </button>
           <button 
-            (click)="closePrompt()" 
+            (click)="closePrompt(true)" 
             class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
             Not now
           </button>
@@ -34,9 +34,17 @@ import { CommonModule } from '@angular/common';
 export class PwaInstallComponent implements OnInit {
   private deferredPrompt: any;
   showInstallPrompt = false;
+  private readonly INSTALL_PROMPT_KEY = 'pwa-prompt-dismissed';
 
   ngOnInit() {
-    this.handleInstallPrompt();
+    // Only set up the install prompt if user hasn't dismissed it before
+    if (!this.hasUserDismissedPrompt()) {
+      this.handleInstallPrompt();
+    }
+  }
+
+  private hasUserDismissedPrompt(): boolean {
+    return localStorage.getItem(this.INSTALL_PROMPT_KEY) === 'true';
   }
 
   private handleInstallPrompt() {
@@ -45,8 +53,6 @@ export class PwaInstallComponent implements OnInit {
       this.deferredPrompt = e;
       // Show our custom install prompt
       this.showInstallPrompt = true;
-      
-      // Optionally, send analytics event to track install prompt was shown
       console.log('Install prompt is ready to be shown');
     });
 
@@ -54,8 +60,8 @@ export class PwaInstallComponent implements OnInit {
       // Clear prompt after successful installation
       this.showInstallPrompt = false;
       this.deferredPrompt = null;
-      
-      // Optionally, send analytics event to track successful installation
+      // Save that the app was installed
+      localStorage.setItem(this.INSTALL_PROMPT_KEY, 'true');
       console.log('PWA was installed successfully');
     });
   }
@@ -78,12 +84,21 @@ export class PwaInstallComponent implements OnInit {
       // Clear the deferredPrompt since it can't be used again
       this.deferredPrompt = null;
       this.showInstallPrompt = false;
+
+      // If user dismissed the prompt, remember their choice
+      if (choiceResult.outcome === 'dismissed') {
+        localStorage.setItem(this.INSTALL_PROMPT_KEY, 'true');
+      }
     } catch (error) {
       console.error('Error showing install prompt:', error);
     }
   }
 
-  closePrompt() {
+  closePrompt(remember: boolean = true) {
     this.showInstallPrompt = false;
+    if (remember) {
+      // Save user's preference to not show the prompt again
+      localStorage.setItem(this.INSTALL_PROMPT_KEY, 'true');
+    }
   }
 }
