@@ -15,7 +15,8 @@ import { FamilyService } from '../services/FamilyService';
   styleUrl: './app.component.css'
 })
 export class AppComponent   {
-  title = 'AI-Grocery-App'; 
+  title = 'AI-Grocery-App';
+  showUpdateNotification = false;
 
   constructor(
     public authService: AuthService,
@@ -25,10 +26,27 @@ export class AppComponent   {
     this.checkForUpdates();
   }
 
-  ngOnInit() {
-    this.initializeApp();
+  private checkForUpdates() {
+    // Fix: Remove duplicate checkForUpdate call
+    this.updates.checkForUpdate().then((available: boolean) => {
+      if (available) {
+        this.showUpdateNotification = true;
+      }
+    });
+
+    // Listen for updates during runtime
+    this.updates.checkForUpdate().then(() => {
+      this.showUpdateNotification = true;
+    });
   }
 
+   
+
+  handleUpdate() {
+    window.location.reload();
+  }
+
+  // Your existing methods
   private initializeApp() {
     this.authService.user$.subscribe(user => {
       if (user?.email) {
@@ -44,17 +62,6 @@ export class AppComponent   {
       },
       error: (error) => {
         console.error('Error initializing family:', error);
-        // Consider adding error handling UI here
-      }
-    });
-  }
-
-  private checkForUpdates() {
-    this.updates.checkForUpdate().then((value: boolean) => {
-      if (value) {
-        if (confirm('A new version is available. Load the new version?')) {
-          window.location.reload();
-        }
       }
     });
   }

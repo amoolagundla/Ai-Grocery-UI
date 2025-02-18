@@ -15,5 +15,9 @@
         </div>
       </button>
     </div>
+    <app-update-notification
+    *ngIf="showUpdateNotification"
+    (updateApp)="handleUpdate()"
+  ></app-update-notification>
   </div>
   

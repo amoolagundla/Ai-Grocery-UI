@@ -1,51 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { AsyncPipe, NgIf } from '@angular/common'; 
+// header.component.ts
+import { Component, OnInit, Input } from '@angular/core';
+import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../services/auth.service';
 import { Observable } from 'rxjs';
+import { UpdateNotificationComponent } from '../app/update-notification/update-notification.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [AsyncPipe, NgIf],
-  templateUrl:'./header.component.html'  ,
-  styles: [`
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background-color: #f8f9fa;
-      border-bottom: 1px solid #dee2e6;
-    }
-    .profile {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .profile-image {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
-    .logout-button {
-      padding: 8px 16px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-  `]
+  imports: [CommonModule, AsyncPipe, NgIf, UpdateNotificationComponent],
+  template: `
+    <header class="header">
+      <app-update-notification
+        [isVisible]="showUpdateNotification"
+        (updateApp)="handleUpdate()"
+      ></app-update-notification>
+      <!-- Rest of your header content -->
+      <div class="profile" *ngIf="user$ | async as user">
+        <img [src]="user.photoURL" class="profile-image" alt="Profile">
+        <button class="logout-button" (click)="logout()">Logout</button>
+      </div>
+    </header>
+  `,
+  styles: [/* your existing styles */]
 })
-export class HeaderComponent implements OnInit { 
-   user$:Observable<User | null> | undefined;
+export class HeaderComponent implements OnInit {
+  @Input() showUpdateNotification = false;
+  user$: Observable<User | null> | undefined;
+
   constructor(
     public authService: AuthService,
     private router: Router
   ) {}
+
   ngOnInit(): void {
     this.user$ = this.authService.user$;
+  }
+
+  handleUpdate() {
+    window.location.reload();
   }
 
   logout(): void {

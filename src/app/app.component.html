@@ -1,5 +1,5 @@
 
-<app-header *ngIf="authService.isLoggedIn()"></app-header>
+<app-header [showUpdateNotification]="showUpdateNotification" *ngIf="authService.isLoggedIn()"></app-header>
 <div class="pb-16">  <!-- ✅ Ensure space at bottom -->
     <router-outlet></router-outlet>
   </div>
