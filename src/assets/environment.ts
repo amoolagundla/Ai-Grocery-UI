@@ -1,6 +1,9 @@
+
 export const environment = {
     production: false,
-    googleClientId:"330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com",
+    // googleClientId:"330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com",
+    googleClientId:"329006124308-8hu0rg8sg5v466lq2vhnqu5jmuduv0se.apps.googleusercontent.com",
+
     firebase: {
         apiKey: "AIzaSyD_SddQTYHKggUkU6h7XmZ-Gc-_6mqFd-0",
         authDomain: "ai-grocery-a.firebaseapp.com",
@@ -11,3 +14,5 @@ export const environment = {
         measurementId: "G-3HQM0R2S5J"
       },
   };
+
+

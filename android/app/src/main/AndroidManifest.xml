@@ -33,7 +33,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+       <meta-data
+    android:name="com.google.android.gms.auth.api.signin.GoogleSignInOptions"
+    android:value="@string/default_web_client_id" />
     </application>
+
+    <meta-data
+    android:name="com.google.android.gms.ads.APPLICATION_ID"
+    android:value="com.AI.AIGroceryApp"/>
 
     <!-- Permissions -->
 
