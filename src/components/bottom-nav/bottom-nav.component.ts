@@ -33,4 +33,7 @@ showUpdateNotification: any;
   handleUpdate() {
     window.location.reload();
   }
+  handleHideNotification() {
+    this.showUpdateNotification = false;
+  }
 }
