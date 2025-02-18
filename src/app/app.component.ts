@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, importProvidersFrom } from '@angular/core';
+import { AfterViewInit, Component, importProvidersFrom, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GoogleAuthService } from '../services/google-auth.service';
 import { HeaderComponent } from '../header/header.component';
@@ -15,7 +15,7 @@ import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent   {
+export class AppComponent implements OnInit  {
   title = 'AI-Grocery-App';
   showUpdateNotification = false;
 
@@ -26,19 +26,24 @@ export class AppComponent   {
   ) {
     this.checkForUpdates();
   }
+  ngOnInit(): void {
+    this.initializeApp();
+  }
 
   private checkForUpdates() {
-    // Fix: Remove duplicate checkForUpdate call
-    this.updates.checkForUpdate().then((available: boolean) => {
-      if (available) {
-        this.showUpdateNotification = true;
-      }
-    });
-
-    // Listen for updates during runtime
-    this.updates.checkForUpdate().then(() => {
+    if (this.updates.isEnabled) {
+      this.updates.checkForUpdate().then((available: boolean) => {
+        if (available) {
+          this.showUpdateNotification = true;
+        }
+      });
+     this.updates.versionUpdates.subscribe(()=>{
       this.showUpdateNotification = true;
-    });
+     })
+      this.updates.checkForUpdate().then(() => {
+        this.showUpdateNotification = true;
+      });
+    }
   }
 
    

@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service'; 
 import { Family, FamilyInvite, FamilyService } from '../../services/FamilyService';
+import { Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-familygroups',
@@ -111,6 +112,9 @@ export class FamilygroupsComponent implements OnInit {
   successMessage = '';
   inviteEmail = '';
   user: any;
+  
+  // Add subscriptions tracking
+  private subscriptions: Subscription[] = [];
 
   constructor(
     public familyService: FamilyService,
@@ -121,45 +125,53 @@ export class FamilygroupsComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy() {
+    // Clean up all subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   async loadData() {
-    // Subscribe to both user and family state
-    this.authService.user$.subscribe(user => {
+    // Track the user subscription
+    const userSub = this.authService.user$.pipe(
+      take(1)
+    ).subscribe(user => {
       if (user?.email) {
         this.user = user;
         this.fetchFamilyDetails(user.email);
         this.fetchInvites(user.email);
       }
     });
+    this.subscriptions.push(userSub);
   }
 
   fetchFamilyDetails(email: string) {
-    // Use the familyId from the service
     const familyId = this.familyService.getFamilyId();
     if (familyId) {
-      this.familyService.getFamilyDetails(familyId).subscribe({
-        next: (family:any) => {
-          console.log('Current family:', family);
-          this.currentFamily = family;
+      const familySub = this.familyService.getFamilyDetails(familyId).subscribe({
+        next: (family: any) => {
+          this.currentFamily = family[0];
           this.loading = false;
         },
-        error: (error:any) => {
+        error: (error: any) => {
           console.error('Family fetch error:', error);
           this.error = 'Failed to load family details';
           this.loading = false;
         }
       });
+      this.subscriptions.push(familySub);
     }
   }
 
   fetchInvites(email: string) {
-    this.familyService.getPendingInvites(email).subscribe({
-      next: (invites:any) => {
+    const invitesSub = this.familyService.getPendingInvites(email).subscribe({
+      next: (invites: any) => {
         this.invites = invites;
       },
-      error: (error:any) => {
+      error: (error: any) => {
         this.error = 'Failed to load invites';
       }
     });
+    this.subscriptions.push(invitesSub);
   }
 
   sendInvite() {
@@ -171,30 +183,32 @@ export class FamilygroupsComponent implements OnInit {
       return;
     }
     
-    this.familyService.sendInvite(familyId, this.inviteEmail, this.user.email).subscribe({
+    const sendInviteSub = this.familyService.sendInvite(familyId, this.inviteEmail, this.user.email).subscribe({
       next: () => {
         this.successMessage = 'Invitation sent successfully!';
         this.inviteEmail = '';
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: (error:any) => {
+      error: (error: any) => {
         this.error = 'Failed to send invitation';
         setTimeout(() => this.error = '', 3000);
       }
     });
+    this.subscriptions.push(sendInviteSub);
   }
 
   processInvite(inviteId: string, action: 'accept' | 'reject') {
-    this.familyService.processInvite(inviteId, action).subscribe({
+    const processSub = this.familyService.processInvite(inviteId, action).subscribe({
       next: () => {
         this.successMessage = `Invitation ${action}ed successfully!`;
         this.loadData();
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: (error:any) => {
+      error: (error: any) => {
         this.error = `Failed to ${action} invitation`;
         setTimeout(() => this.error = '', 3000);
       }
     });
+    this.subscriptions.push(processSub);
   }
 }

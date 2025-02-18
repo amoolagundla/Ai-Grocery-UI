@@ -62,7 +62,7 @@ export class FamilyService {
   }
 
   getPendingInvites(email: string): Observable<FamilyInvite[]> {
-    return this.http.get<FamilyInvite[]>(`${this.apiUrl}/family/invites/${email}`);
+    return this.http.get<FamilyInvite[]>(`${this.apiUrl}/family/byEmail/${email}`);
   }
 
   sendInvite(familyId: string, email: string, invitedBy: string): Observable<any> {
