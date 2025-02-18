@@ -58,7 +58,7 @@ import { Subscription, take } from 'rxjs';
           class="p-4 rounded-xl bg-[#FFFBF5] border border-[#E9DFCE]">
        <div class="flex justify-between items-center">
          <div>
-           <p class="text-[#1C160C] font-medium">From: {{invite.invitedBy}}</p>
+           <p class="text-[#1C160C] font-medium">From: {{invite.inviteId}}</p>
            <p class="text-[#A18249] text-sm">Sent: {{invite.createdAt | date}}</p>
          </div>
          <div class="flex gap-2">

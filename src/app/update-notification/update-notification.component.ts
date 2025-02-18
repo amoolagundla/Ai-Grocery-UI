@@ -34,12 +34,17 @@ import { CommonModule } from '@angular/common';
       <!-- Control bar -->
       <div class="flex items-center gap-4 bg-white px-4 min-h-14 justify-between">
         <div class="flex items-center gap-4 cursor-pointer" (click)="toggleMinimize()">
-          <div class="text-[#111418] flex items-center justify-center rounded-lg bg-[#f0f2f4] shrink-0 size-10" 
-               [ngStyle]="{'transform': isMinimized ? 'rotate(180deg)' : 'rotate(0deg)'}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-              <path d="M205.66,149.66l-72,72a8,8,0,0,1-11.32,0l-72-72a8,8,0,0,1,11.32-11.32L120,196.69V40a8,8,0,0,1,16,0V196.69l58.34-58.35a8,8,0,0,1,11.32,11.32Z"></path>
-            </svg>
-          </div>
+        <div class="relative flex h-12 items-center justify-center rounded-full p-2">
+ <div style="
+    margin-top: 2%;
+    margin-left: 11%;
+" class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+   1
+ </div>
+ <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256" class="transition-colors duration-200">
+   <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+ </svg>
+</div>
           <p class="text-[#111418] text-base font-normal leading-normal flex-1 truncate">
             {{ isMinimized ? 'Maximize' : 'Minimize' }}
           </p>
