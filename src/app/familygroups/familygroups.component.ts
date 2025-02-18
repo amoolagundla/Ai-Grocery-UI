@@ -10,98 +10,84 @@ import { Subscription, take } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container mx-auto">
-      <!-- Family Group Section -->
-      <section class="mb-8" *ngIf="currentFamily">
-        <h2 class="text-[#0e141b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5">
-          Your Family Group
-        </h2>
-        
-        <div class="px-4">
-          <div class="p-4 rounded-xl bg-[#e7edf3]">
-            <h3 class="text-[#0e141b] text-lg font-bold">{{currentFamily.familyName}}</h3>
-            <p class="text-[#4e7397]">Primary Contact: {{currentFamily.primaryEmail}}</p>
-          </div>
-        </div>
-      </section>
+   <div class="container mx-auto">
+  
 
-      <!-- Invite Member Section -->
-      <section class="mb-8">
-        <h1 class="text-[#0e141b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5">
-          Invite Family
-        </h1>
-        
-        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-          <label class="flex flex-col min-w-40 flex-1">
-            <input
-              type="email"
-              [(ngModel)]="inviteEmail"
-              placeholder="Enter email, phone number or name"
-              class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#0e141b] focus:outline-0 focus:ring-0 border-none bg-[#e7edf3] focus:border-none h-14 placeholder:text-[#4e7397] p-4 text-base font-normal leading-normal"
-            />
-          </label>
-        </div>
-        
-        <p class="text-[#0e141b] text-base font-normal leading-normal pb-3 pt-1 px-4">
-          We'll send them an invitation to join the family network.
-        </p>
-        
-        <div class="flex px-4 py-3">
-          <button
-            (click)="sendInvite()"
-            [disabled]="!inviteEmail || !familyService.getFamilyId()"
-            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 flex-1 bg-[#308ce8] text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]"
-            [class.opacity-50]="!inviteEmail || !familyService.getFamilyId()"
-          >
-            <span class="truncate">Send Invitation</span>
-          </button>
-        </div>
-      </section>
+ <section class="mb-8" *ngIf="currentFamily">
+   <div class="p-4">
+     <div class="flex items-stretch justify-between gap-4 rounded-xl bg-[#FFFBF5] p-4">
+       <div class="flex flex-col gap-1 flex-[2_2_0px]">
+         <p class="text-[#1C160C] text-base font-bold leading-tight">{{currentFamily.familyName}}</p>
+         <p class="text-[#A18249] text-sm font-normal leading-normal">Primary Contact: {{currentFamily.primaryEmail}}</p>
+       </div>
+       <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl flex-1" 
+            style="background-image: url('https://cdn.usegalileo.ai/sdxl10/63d28c40-8f5d-4f2c-aa7f-a218c9b6af24.png');">
+       </div>
+     </div>
+   </div>
 
-      <!-- Pending Invites Section -->
-      <section class="mb-8" *ngIf="invites.length > 0">
-        <h2 class="text-[#0e141b] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5">
-          Pending Invites
-        </h2>
-        
-        <div class="grid gap-4 px-4">
-          <div *ngFor="let invite of invites" 
-               class="p-4 rounded-xl bg-[#e7edf3]">
-            <div class="flex justify-between items-center">
-              <div>
-                <p class="text-[#0e141b] font-medium">From: {{invite.invitedBy}}</p>
-                <p class="text-[#4e7397] text-sm">
-                  Sent: {{invite.createdAt | date}}
-                </p>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  (click)="processInvite(invite.inviteId, 'accept')"
-                  class="flex items-center justify-center rounded-xl h-10 px-4 bg-[#308ce8] text-slate-50 text-sm font-bold"
-                >
-                  Accept
-                </button>
-                <button
-                  (click)="processInvite(invite.inviteId, 'reject')"
-                  class="flex items-center justify-center rounded-xl h-10 px-4 bg-[#e7edf3] text-[#0e141b] text-sm font-bold border border-[#0e141b]"
-                >
-                  Decline
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+   <div class="px-4 pt-6">
+ <h3 class="text-[#1C160C] text-lg font-bold leading-tight tracking-[-0.015em] pb-4">Invite Family</h3>
+ <div class="flex flex-col max-w-[480px] gap-4">
+   <label class="flex flex-col w-full">
+     <input
+       type="email"
+       [(ngModel)]="inviteEmail"
+       placeholder="Enter email address"
+       class="form-input w-full resize-none overflow-hidden rounded-xl text-[#1C160C] focus:outline-0 focus:ring-0 border border-[#E9DFCE] bg-[#FFFFFF] focus:border-[#E9DFCE] h-14 placeholder:text-[#A18249] p-[15px] text-base font-normal leading-normal"
+     />
+   </label>
+   <button
+     (click)="sendInvite()"
+     [disabled]="!inviteEmail || !familyService.getFamilyId()"
+     class="w-full flex justify-center items-center rounded-xl h-14 px-4 bg-[#1C160C] text-white text-base font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
+   >
+     <span class="truncate">Send Invitation</span>
+   </button>
+ </div>
+ <p class="text-[#1C160C] text-sm font-normal leading-normal mt-2">
+   We'll send them an invitation to join the family network.
+ </p>
+</div>
+ </section>
 
-      <!-- Messages -->
-      <div *ngIf="error" class="mx-4 mb-4 p-4 rounded-xl bg-red-50 text-red-700 border-l-4 border-red-500">
-        <p>{{error}}</p>
-      </div>
-      
-      <div *ngIf="successMessage" class="mx-4 mb-4 p-4 rounded-xl bg-green-50 text-green-700 border-l-4 border-green-500">
-        <p>{{successMessage}}</p>
-      </div>
-    </div>
+ <section class="mb-8 px-4" *ngIf="invites.length > 0">
+   <h3 class="text-[#1C160C] text-lg font-bold leading-tight tracking-[-0.015em] pb-4">Pending Invites</h3>
+   <div class="grid gap-4">
+     <div *ngFor="let invite of invites" 
+          class="p-4 rounded-xl bg-[#FFFBF5] border border-[#E9DFCE]">
+       <div class="flex justify-between items-center">
+         <div>
+           <p class="text-[#1C160C] font-medium">From: {{invite.invitedBy}}</p>
+           <p class="text-[#A18249] text-sm">Sent: {{invite.createdAt | date}}</p>
+         </div>
+         <div class="flex gap-2">
+           <button
+             (click)="processInvite(invite.inviteId, 'accept')"
+             class="flex items-center justify-center rounded-xl h-10 px-4 bg-[#1C160C] text-white text-sm font-bold"
+           >
+             Accept
+           </button>
+           <button
+             (click)="processInvite(invite.inviteId, 'reject')"
+             class="flex items-center justify-center rounded-xl h-10 px-4 bg-transparent text-[#1C160C] text-sm font-bold border border-[#E9DFCE]"
+           >
+             Decline
+           </button>
+         </div>
+       </div>
+     </div>
+   </div>
+ </section>
+
+ <div *ngIf="error" class="mx-4 mb-4 p-4 rounded-xl bg-red-50 text-red-700 border-l-4 border-red-500">
+   <p>{{error}}</p>
+ </div>
+ 
+ <div *ngIf="successMessage" class="mx-4 mb-4 p-4 rounded-xl bg-green-50 text-green-700 border-l-4 border-green-500">
+   <p>{{successMessage}}</p>
+ </div>
+</div>
   `
 })
 export class FamilygroupsComponent implements OnInit {
