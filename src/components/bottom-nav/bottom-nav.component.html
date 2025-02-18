@@ -85,4 +85,10 @@
       </div>
     </div>
   </div>
+  <br/>
+  
+  <app-update-notification
+    [isVisible]="showUpdateNotification"
+    (updateApp)="handleUpdate()"
+  ></app-update-notification>
   <div class="h-20 bg-white"></div> <!-- Spacer for fixed navbar -->

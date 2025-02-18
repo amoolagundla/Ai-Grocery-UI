@@ -28,10 +28,7 @@ import { UpdateNotificationComponent } from '../app/update-notification/update-n
         </div>
       </button>
     </div>
-    <app-update-notification
-    [isVisible]="showUpdateNotification"
-    (updateApp)="handleUpdate()"
-  ></app-update-notification>
+    
   <!-- Rest of your header content -->
   <div class="profile" *ngIf="user$ | async as user">
      
