@@ -4,7 +4,7 @@
     <string name="title_activity_main">AI-Grocery-APP</string>
     <string name="package_name">com.AI.AIGroceryApp</string>
     <string name="custom_url_scheme">com.AI.AIGroceryApp</string>
-    <string name="default_web_client_id">329006124308-8hu0rg8sg5v466lq2vhnqu5jmuduv0se.apps.googleusercontent.com</string>
-    <string name="server_client_id">329006124308-8hu0rg8sg5v466lq2vhnqu5jmuduv0se.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com</string>
+    <string name="server_client_id">330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com</string>
 
 </resources>

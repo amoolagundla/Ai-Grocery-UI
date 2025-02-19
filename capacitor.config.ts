@@ -13,6 +13,12 @@ const config: CapacitorConfig = {
       clientId :environment.googleClientId, 
       forceCodeForRefreshToken: true,      
     },
+ 
+  StatusBar: {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#ffffff"
+    }
   },
 };
 

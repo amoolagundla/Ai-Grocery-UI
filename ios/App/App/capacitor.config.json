@@ -8,12 +8,19 @@
 				"profile",
 				"email"
 			],
-			"serverClientId": "329006124308-8hu0rg8sg5v466lq2vhnqu5jmuduv0se.apps.googleusercontent.com",
-
+			"androidClientId": "330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com",
+			"serverClientId": "330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com",
+			"clientId": "330943388161-nng1skva9rdl0ql4q0t3j19g1otuofcd.apps.googleusercontent.com",
 			"forceCodeForRefreshToken": true
+		},
+		"StatusBar": {
+			"overlaysWebView": false,
+			"style": "DARK",
+			"backgroundColor": "#ffffff"
 		}
 	},
 	"packageClassList": [
+		"StatusBarPlugin",
 		"GoogleAuth"
 	]
 }

@@ -9,6 +9,7 @@ import { environment } from '../assets/environment';
 import { SwUpdate } from '@angular/service-worker';
 import { FamilyService } from '../services/FamilyService';
 import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
+import { StatusBarService } from '../services/StatusBarService';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, NgIf, BottomNavComponent, CommonModule, PwaInstallComponent],
@@ -17,17 +18,20 @@ import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
 })
 export class AppComponent implements OnInit  {
   title = 'AI-Grocery-App';
+  isDark = false;
   showUpdateNotification = false;
 
   constructor(
     public authService: AuthService,
     public familyService: FamilyService,
-    private updates: SwUpdate
+    private updates: SwUpdate,
+    private statusBar: StatusBarService
   ) {
     this.checkForUpdates();
   }
   ngOnInit(): void {
     this.initializeApp();
+    this.statusBar.setStyle(this.isDark ? 'dark' : 'light');
   }
 
   private checkForUpdates() {
