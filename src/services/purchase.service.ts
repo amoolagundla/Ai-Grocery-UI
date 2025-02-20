@@ -43,7 +43,7 @@ export class PurchaseService {
     }
   ];
 
-  getPurchases(): Observable<Purchase[]> {
+  getPurchases(familyId?: string): Observable<Purchase[]> {
     return of(this.mockPurchases);
   }
 }

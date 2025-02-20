@@ -3,6 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging'; 
 import { PushNotifications } from '@capacitor/push-notifications';
 import { environment } from '../assets/environment';
+import { Capacitor } from '@capacitor/core';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,8 @@ export class PushNotificationService {
   constructor() {}
 
   async initPushNotifications() {
+      if (!Capacitor.isNativePlatform()) return;
+      
     console.log('🔄 Initializing Firebase Push Notifications...');
 
     document.addEventListener('deviceready', async () => {

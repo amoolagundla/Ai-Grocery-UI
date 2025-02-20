@@ -17,13 +17,18 @@ export class UploadComponent {
   uploading = false;
   userEmail: string | null = null;
   isDraggingOver = false; // UI effect for drag-and-drop area
-
+  familyId: string | null = null;
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
       if (user) {
         this.userEmail = user.email;
+        this.familyId = user.familyId || null;
+        
+        if (!this.familyId) {
+          console.warn('No family ID available for user');
+        }
       }
     });
   }
@@ -83,6 +88,11 @@ export class UploadComponent {
   async uploadFiles() {
     if (!this.selectedFiles.length) return;
 
+    if (!this.selectedFiles.length || !this.familyId) {
+  console.error('No files selected or no family ID available');
+  return;
+}
+
     this.uploading = true;
     for (let i = 0; i < this.selectedFiles.length; i++) {
       await this.uploadSingleFile(i);
@@ -104,7 +114,7 @@ export class UploadComponent {
         'x-ms-blob-type': 'BlockBlob',
         'Content-Type': this.selectedFiles[index].type,
         'x-ms-meta-email': this.userEmail || '',
-        'x-ms-meta-familyId': '1' // Replace with actual family ID if needed
+        'x-ms-meta-familyId': this.familyId || '1'
       });
 
       this.http.put(uploadUrl, this.selectedFiles[index], { headers, reportProgress: true, observe: 'events' })

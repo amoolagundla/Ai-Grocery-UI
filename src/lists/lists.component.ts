@@ -3,6 +3,8 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular
 import { ShoppingListService } from '../services/ShoppingListService';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 interface StoreItem {
   store: string;
@@ -83,16 +85,18 @@ interface StoreItem {
 })
 export class ListsComponent implements OnInit {
   shoppingListForm: FormGroup;
-  familyId: string = '1';
+  familyId: string | undefined;
   selectedStore: string | null = null;
   previousLists: any[] = [];
   storeItems: { [store: string]: string[] } = {};
   addedItems: Map<string, string> = new Map();
-  loading$: any ;
+  loading$: any;
+  private subscriptions = new Subscription();
 
   constructor(
     private fb: FormBuilder,
-    private shoppingListService: ShoppingListService
+    private shoppingListService: ShoppingListService,
+    private authService: AuthService
   ) {
     this.shoppingListForm = this.fb.group({
       storeName: [''],
@@ -102,21 +106,20 @@ export class ListsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading$ = this.shoppingListService.isLoading;
-    // Subscribe to the shopping lists observable
-    this.shoppingListService.getShoppingLists(this.familyId).subscribe({
-      next: (data) => {
-        this.previousLists = data;
-        if (data.length > 0) {
-          this.storeItems = data[0].storeItems;
-          if (!this.selectedStore && this.getStoreNames().length > 0) {
-            this.filterByStore(this.getStoreNames()[0]);
-          }
+
+    // Subscribe to auth service for familyId
+    this.subscriptions.add(
+      this.authService.user$.subscribe(user => {
+        if (user?.familyId) {
+          this.familyId = user.familyId;
+          this.loadPreviousLists();
         }
-      },
-      error: (error) => {
-        console.error('Error loading shopping lists:', error);
-      }
-    });
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   get items(): FormArray {
@@ -136,25 +139,28 @@ export class ListsComponent implements OnInit {
   }
 
   async loadPreviousLists(): Promise<void> {
-    
-    this.shoppingListService.getShoppingLists(this.familyId).subscribe({
-      next: (data) => {
-        this.previousLists = data;
-        if (data.length > 0) {
-          this.storeItems = data[0].storeItems;
-          if (!this.selectedStore && this.getStoreNames().length > 0) {
-            this.filterByStore(this.getStoreNames()[0]);
+    if (!this.familyId) {
+      console.warn('No family ID available');
+      return;
+    }
+
+    this.subscriptions.add(
+      this.shoppingListService.getShoppingLists(this.familyId).subscribe({
+        next: (data) => {
+          this.previousLists = data;
+          if (data.length > 0) {
+            this.storeItems = data[0].storeItems;
+            if (!this.selectedStore && this.getStoreNames().length > 0) {
+              this.filterByStore(this.getStoreNames()[0]);
+            }
           }
+        },
+        error: (err) => {
+          console.error('Error fetching shopping lists:', err);
         }
-         
-      },
-      error: (err) => {
-        console.error('Error fetching shopping lists:', err);
-         
-      }
-    });
+      })
+    );
   }
- 
 
   getStoreNames(): string[] {
     return Object.keys(this.storeItems || {});
@@ -190,6 +196,11 @@ export class ListsComponent implements OnInit {
   }
 
   saveShoppingList(): void {
+    if (!this.familyId) {
+      console.error('No family ID available');
+      return;
+    }
+
     const groupedItems = this.getGroupedSelectedItems();
     const newList = {
       familyId: this.familyId,
@@ -197,16 +208,18 @@ export class ListsComponent implements OnInit {
       createdDate: new Date()
     };
 
-    this.shoppingListService.saveShoppingList(newList).subscribe({
-      next: () => {
-        alert('Shopping list saved successfully!');
-        this.loadPreviousLists();
-      },
-      error: (err) => {
-        console.error('Error saving shopping list:', err);
-        alert('Failed to save shopping list.');
-      }
-    });
+    this.subscriptions.add(
+      this.shoppingListService.saveShoppingList(newList).subscribe({
+        next: () => {
+          alert('Shopping list saved successfully!');
+          this.loadPreviousLists();
+        },
+        error: (err) => {
+          console.error('Error saving shopping list:', err);
+          alert('Failed to save shopping list.');
+        }
+      })
+    );
   }
 
   shareToWhatsApp() {

@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   photoURL: string;
+  familyId?: string;  // Added familyId
 }
 
 @Injectable({
@@ -31,8 +32,26 @@ export class AuthService {
       photoURL: googleUser.picture
     };
 
-    localStorage.setItem('user', JSON.stringify(user));  // ✅ Save to localStorage
+    localStorage.setItem('user', JSON.stringify(user));
     this.user.next(user);
+  }
+
+  /** ✅ Update user's family ID */
+  setFamilyId(familyId: string): void {
+    const currentUser = this.user.value;
+    if (currentUser) {
+      const updatedUser = {
+        ...currentUser,
+        familyId
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      this.user.next(updatedUser);
+    }
+  }
+
+  /** ✅ Get user's family ID */
+  getFamilyId(): string | undefined {
+    return this.user.value?.familyId;
   }
 
   /** ✅ Retrieve stored user from localStorage */
@@ -43,7 +62,7 @@ export class AuthService {
 
   /** ✅ Clear user data on logout */
   public logout(): void {
-    localStorage.removeItem('user');  // ✅ Remove from localStorage
+    localStorage.removeItem('user');
     this.user.next(null);
   }
 }

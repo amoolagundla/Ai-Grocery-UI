@@ -24,12 +24,8 @@ export class NotificationService {
             if (user?.email) {
                 this.updatePendingInvites(user.email);
             }
-        });
-
-        // Refresh notifications every minute
-        setInterval(() => {
-            this.refreshNotifications();
-        }, 60000);
+        }); 
+        
     }
 
     async refreshNotifications() {

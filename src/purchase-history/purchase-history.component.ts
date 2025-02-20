@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AsyncPipe, CommonModule, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common'; 
 import { Purchase, PurchaseService } from '../services/purchase.service';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { UploadComponent } from "../upload/upload.component";
 import { HttpClient, HttpClientModule } from '@angular/common/http';  
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-purchase-history',
@@ -41,11 +42,17 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 })
 export class PurchaseHistoryComponent implements OnInit {
   purchases$!: Observable<Purchase[] | null>; 
-  showUploads:boolean=false;
-  constructor(private purchaseService: PurchaseService) {}
+  showUploads: boolean = false;
+  familyId: string | undefined;
+  constructor(private purchaseService: PurchaseService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.purchases$ = this.purchaseService.getPurchases();
+    this.purchases$ = this.authService.user$.pipe(
+      switchMap(user => {
+        this.familyId = user?.familyId;
+        return this.purchaseService.getPurchases(this.familyId);
+      })
+    );
   }
 
   gotouploadspage(){
