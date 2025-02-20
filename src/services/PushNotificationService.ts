@@ -1,24 +1,28 @@
 import { Injectable } from '@angular/core';
-import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging'; 
 import { PushNotifications } from '@capacitor/push-notifications';
-import { environment } from '../assets/environment';
 import { Capacitor } from '@capacitor/core';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PushNotificationService {
-  private firebaseApp = initializeApp(environment.firebase);
-  private messaging = getMessaging(this.firebaseApp);
+  private apiUrl = 'https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api';
 
-  constructor() {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   async initPushNotifications() {
-      if (!Capacitor.isNativePlatform()) return;
-      
-    console.log('🔄 Initializing Firebase Push Notifications...');
+    if (!Capacitor.isNativePlatform()) {
+      console.log('Not a native platform, skipping push notifications');
+      return;
+    }
 
+    console.log('🔄 Initializing Push Notifications...');
     document.addEventListener('deviceready', async () => {
       console.log('📱 Device is ready. Requesting push notification permissions...');
 
@@ -31,8 +35,10 @@ export class PushNotificationService {
         return;
       }
 
-      PushNotifications.addListener('registration', (token) => {
+      // Handle token registration
+      PushNotifications.addListener('registration', async (token) => {
         console.log('📲 Push Registration Token:', token.value);
+        await this.saveToken(token.value);
       });
 
       PushNotifications.addListener('registrationError', (err) => {
@@ -46,30 +52,33 @@ export class PushNotificationService {
       PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
         console.log('🛠️ Notification action performed:', action);
       });
-
-      // Fetch and log FCM Token
-      this.getFCMToken();
     });
   }
 
-  private async getFCMToken() {
+  private async saveToken(token: string) {
     try {
-      const fcmToken = await getToken(this.messaging, {
-        vapidKey: 'YOUR_VAPID_PUBLIC_KEY',
-      });
-
-      if (fcmToken) {
-        console.log('🚀 Firebase Cloud Messaging (FCM) Token:', fcmToken);
-      } else {
-        console.warn('⚠️ No FCM token available.');
+      const user = await firstValueFrom(this.authService.user$);
+      if (!user?.email) {
+        console.warn('⚠️ No user email available to save token');
+        return;
       }
-    } catch (error) {
-      console.error('🔥 Error fetching FCM token:', error);
-    }
 
-    // Handle foreground push notifications
-    onMessage(this.messaging, (payload) => {
-      console.log('📩 Foreground message received:', payload);
-    });
+      const response = await firstValueFrom(
+        this.http.post(`${this.apiUrl}/push-token`, {
+          email: user.email,
+          token: token,
+          platform: Capacitor.getPlatform() // 'ios' or 'android'
+        }).pipe(
+          catchError(error => {
+            console.error('🔥 Error saving push token:', error);
+            throw error;
+          })
+        )
+      );
+
+      console.log('✅ Push token saved successfully:', response);
+    } catch (error) {
+      console.error('🔥 Error in saveToken:', error);
+    }
   }
 }
