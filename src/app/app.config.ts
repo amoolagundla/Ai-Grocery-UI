@@ -8,9 +8,10 @@ import { getAuth } from 'firebase/auth';
 import { environment } from '../assets/environment';
 import { provideHttpClient } from '@angular/common/http';
 import { provideServiceWorker } from '@angular/service-worker';
+import { PushNotificationService } from '../services/PushNotificationService';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes) ,
+  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes) ,PushNotificationService,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideHttpClient(), provideServiceWorker('ngsw-worker.js', {

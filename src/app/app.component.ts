@@ -10,6 +10,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { FamilyService } from '../services/FamilyService';
 import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
 import { StatusBarService } from '../services/StatusBarService';
+import { PushNotificationService } from '../services/PushNotificationService';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, NgIf, BottomNavComponent, CommonModule, PwaInstallComponent],
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit  {
     public authService: AuthService,
     public familyService: FamilyService,
     private updates: SwUpdate,
-    private statusBar: StatusBarService
+    private statusBar: StatusBarService,
+    private pushNotificationService: PushNotificationService
   ) {
     this.checkForUpdates();
   }
@@ -58,6 +60,7 @@ export class AppComponent implements OnInit  {
 
   // Your existing methods
   private initializeApp() {
+    this.pushNotificationService.initPushNotifications();
     this.authService.user$.subscribe(user => {
       if (user?.email) {
         this.initializeFamily(user.email);

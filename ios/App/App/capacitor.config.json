@@ -3,6 +3,13 @@
 	"appName": "AI-Grocery-APP",
 	"webDir": "dist/browser",
 	"plugins": {
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
 		"GoogleAuth": {
 			"scopes": [
 				"profile",
@@ -20,6 +27,7 @@
 		}
 	},
 	"packageClassList": [
+		"PushNotificationsPlugin",
 		"StatusBarPlugin",
 		"GoogleAuth"
 	]

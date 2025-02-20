@@ -6,6 +6,9 @@ const config: CapacitorConfig = {
   appName: 'AI-Grocery-APP',
   webDir: 'dist/browser',
   plugins: {
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
     GoogleAuth: {
       scopes: ['profile', 'email'],
       androidClientId: environment.googleClientId, // Use the same client ID

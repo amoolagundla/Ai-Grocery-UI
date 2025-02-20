@@ -12,9 +12,16 @@ export interface Receipt {
   createdAt: string;
 }
 
+export interface PaginatedResponse {
+  items: Receipt[];
+  continuationToken: string;
+  pageSize: number;
+  hasMoreResults: boolean;
+}
+
 interface CacheData {
   timestamp: number;
-  data: Receipt[];
+  data: PaginatedResponse;
 }
 
 @Injectable({
@@ -25,7 +32,12 @@ export class ReceiptsService {
   private cacheKey = 'receipts_cache';
   private cacheDuration = 5 * 60 * 1000; // 5 minutes
 
-  private receiptsSubject = new BehaviorSubject<Receipt[]>([]);
+  private receiptsSubject = new BehaviorSubject<PaginatedResponse>({
+    items: [],
+    continuationToken: '',
+    pageSize: 10,
+    hasMoreResults: false
+  });
   private loadingSubject = new BehaviorSubject<boolean>(false);
 
   public loading$ = this.loadingSubject.asObservable();
@@ -33,7 +45,7 @@ export class ReceiptsService {
 
   constructor(private http: HttpClient) {}
 
-  private saveToCache(data: Receipt[], email: string): void {
+  private saveToCache(data: PaginatedResponse, email: string): void {
     try {
       const cacheData: CacheData = {
         timestamp: Date.now(),
@@ -46,7 +58,7 @@ export class ReceiptsService {
     }
   }
 
-  private getFromCache(email: string): Receipt[] | null {
+  private getFromCache(email: string): PaginatedResponse | null {
     try {
       const cached = localStorage.getItem(`${this.cacheKey}_${email}`);
       if (!cached) return null;
@@ -67,44 +79,71 @@ export class ReceiptsService {
     }
   }
 
-  private fetchFromApi(email: string): Observable<Receipt[]> {
+  private fetchFromApi(email: string, pageSize: number = 10, continuationToken?: string): Observable<PaginatedResponse> {
     this.loadingSubject.next(true);
-    return this.http.get<Receipt[]>(`${this.apiBaseUrl}/receipts?email=${email}`).pipe(
-      tap(data => this.saveToCache(data, email)), // Save fresh data to cache
+    
+    let url = `${this.apiBaseUrl}/receipts?email=${email}&pageSize=${pageSize}`;
+    if (continuationToken) {
+      url += `&continuationToken=${encodeURIComponent(continuationToken)}`;
+    }
+
+    return this.http.get<PaginatedResponse>(url).pipe(
+      tap(data => {
+        if (!continuationToken) {
+          // Only cache the first page
+          this.saveToCache(data, email);
+        }
+      }),
       catchError(error => {
         console.error('Error fetching receipts:', error);
-        return of([]); // Return empty list on failure (prevents crash)
+        return of({
+          items: [],
+          continuationToken: '',
+          pageSize: pageSize,
+          hasMoreResults: false
+        });
       }),
       finalize(() => this.loadingSubject.next(false))
     );
   }
-    
-  getReceipts(email: string): Observable<Receipt[]> {
+
+  getReceipts(email: string, pageSize: number = 10): Observable<PaginatedResponse> {
     const cachedData = this.getFromCache(email);
 
-    if (cachedData) {
-      this.receiptsSubject.next(cachedData); // Load cache first
+    if (cachedData && !this.loadingSubject.value) {
+      this.receiptsSubject.next(cachedData);
       console.info('Loaded receipts from cache');
 
       // Fetch in the background but don't block UI
-      this.fetchFromApi(email).subscribe();
+      this.fetchFromApi(email, pageSize).subscribe();
     } else {
       console.warn('No cache found, fetching from API...');
-      this.fetchFromApi(email).subscribe(data => this.receiptsSubject.next(data));
+      this.fetchFromApi(email, pageSize).subscribe(
+        data => this.receiptsSubject.next(data)
+      );
     }
 
     return this.receipts$;
   }
 
-  forceRefresh(email: string): Observable<Receipt[]> {
+  loadNextPage(email: string, continuationToken: string, pageSize: number = 10): Observable<PaginatedResponse> {
+    return this.fetchFromApi(email, pageSize, continuationToken);
+  }
+
+  forceRefresh(email: string, pageSize: number = 10): Observable<PaginatedResponse> {
     console.info('Forcing refresh: Clearing cache and fetching fresh data');
     this.clearCache(email);
-    return this.fetchFromApi(email);
+    return this.fetchFromApi(email, pageSize);
   }
 
   clearCache(email: string): void {
     console.warn('Cache cleared');
     localStorage.removeItem(`${this.cacheKey}_${email}`);
-    this.receiptsSubject.next([]);
+    this.receiptsSubject.next({
+      items: [],
+      continuationToken: '',
+      pageSize: 10,
+      hasMoreResults: false
+    });
   }
 }
