@@ -188,29 +188,7 @@ export class RecieptsComponent implements OnInit {
       this.auth.user$.subscribe(user => {
         if (user) {
           this.userEmail = user.email;
-          this.fetchReceipts();
-        }
-      })
-    );
-
-    this.subscriptions.add(
-      this.receiptsService.receipts$.subscribe({
-        next: (response: any) => {
-          if (this.loadingMore) {
-            this.receipts = [...this.receipts, ...response.items];
-          } else {
-            this.receipts = response.items;
-          }
-          this.continuationToken = response.continuationToken;
-          this.hasMoreResults = response.hasMoreResults;
-          this.loadingMore = false;
-          this.loading = false;
-        },
-        error: (error: any) => {
-          this.errorMessage = 'Error fetching receipts.';
-          console.error(error);
-          this.loadingMore = false;
-          this.loading = false;
+          this.loadInitialReceipts();
         }
       })
     );
@@ -218,6 +196,53 @@ export class RecieptsComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  loadInitialReceipts(): void {
+    this.loading = true;
+    this.errorMessage = '';
+    
+    this.receiptsService.getReceipts(this.userEmail, this.pageSize)
+      .subscribe({
+        next: (response) => {
+          this.receipts = response.items;
+          this.continuationToken = response.continuationToken;
+          this.hasMoreResults = response.hasMoreResults;
+          this.loading = false;
+        },
+        error: (error) => {
+          this.errorMessage = 'Error fetching receipts.';
+          console.error(error);
+          this.loading = false;
+        }
+      });
+  }
+
+  loadMoreReceipts(): void {
+    if (!this.hasMoreResults || this.loadingMore || !this.continuationToken) {
+      return;
+    }
+
+    this.loadingMore = true;
+    this.errorMessage = '';
+
+    this.receiptsService.loadNextPage(
+      this.userEmail,
+      this.continuationToken,
+      this.pageSize
+    ).subscribe({
+      next: (response) => {
+        this.receipts = [...this.receipts, ...response.items];
+        this.continuationToken = response.continuationToken;
+        this.hasMoreResults = response.hasMoreResults;
+        this.loadingMore = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Error loading more receipts.';
+        console.error(error);
+        this.loadingMore = false;
+      }
+    });
   }
 
   parseDateFromText(text: string): Date {
@@ -243,33 +268,6 @@ export class RecieptsComponent implements OnInit {
     }
 
     return new Date(); // Return current date if no valid date found
-  }
-
-  fetchReceipts(): void {
-    this.errorMessage = '';
-    this.receiptsService.getReceipts(this.userEmail, this.pageSize).subscribe({
-      error: (error: any) => {
-        this.errorMessage = 'Error fetching receipts.';
-        console.error(error);
-      }
-    });
-  }
-
-  loadMoreReceipts(): void {
-    if (!this.hasMoreResults || this.loadingMore) return;
-    
-    this.loadingMore = true;
-    this.receiptsService.loadNextPage(
-      this.userEmail,
-      this.continuationToken,
-      this.pageSize
-    ).subscribe({
-      error: (error: any) => {
-        this.errorMessage = 'Error loading more receipts.';
-        console.error(error);
-        this.loadingMore = false;
-      }
-    });
   }
 
   selectReceipt(receipt: Receipt): void {
@@ -312,20 +310,8 @@ export class RecieptsComponent implements OnInit {
   }
 
   extractTotal(text: string): string {
-    const lines = text.split('\n');
-    let total = '0.00';
-
-    // Look for total in the receipt text
-    for (const line of lines) {
-      if (line.toLowerCase().includes('total')) {
-        const match = line.match(/\d+\.\d{2}/);
-        if (match) {
-          total = match[0];
-          break;
-        }
-      }
-    }
-
-    return total;
+    const totalPattern = /(?:total|grand total|amount due)[^\d]*(\d+\.\d{2})/i;
+    const match = text.match(totalPattern);
+    return match ? match[1] : '0.00';
   }
 }
