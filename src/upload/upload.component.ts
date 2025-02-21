@@ -106,7 +106,7 @@ export class UploadComponent {
   async uploadSingleFile(index: number) {
     try {
       // Get signed URL
-      const url = `https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction`;
+      const url = `https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction?nocache=${new Date().getTime()}`;
       const response: any = await this.http.get(url).toPromise();
 
       const uploadUrl = response.uploadUrl;
