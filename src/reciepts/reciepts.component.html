@@ -1,115 +1,151 @@
-<div class="relative flex size-full min-h-screen flex-col bg-white justify-between group/design-root overflow-x-hidden" style='font-family: Manrope, "Noto Sans", sans-serif;'>
-
-    <!-- 🔥 Selected Receipt Viewer -->
-    <div *ngIf="selectedReceipt" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50">
-      <button (click)="closePreview()" class="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded shadow-lg">Close</button>
-      <app-cached-image 
-  [src]="selectedReceipt.blobUrl"  
-></app-cached-image> 
+<div class="relative flex size-full min-h-screen flex-col bg-white overflow-x-hidden"
+     style='font-family: Manrope, "Noto Sans", sans-serif;'>
+  
+  <!-- 🔥 Header -->
+  <div *ngIf="receipts.length > 0" class="flex items-center bg-white p-4 pb-2 justify-between">
+    <h2 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pl-12">Receipts</h2>
+    <div class="flex w-12 items-center justify-end">
+      <p class="text-[#637588] text-base font-bold leading-normal tracking-[0.015em] shrink-0">Upload</p>
     </div>
-  
-    <div>
-      <!-- 🔥 Header -->
-      <div class="flex items-center bg-white p-4 pb-2 justify-between">
-        <h2 class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pl-12">Receipts</h2>
-        <div class="flex w-12 items-center justify-end">
-          <p class="text-[#637588] text-base font-bold leading-normal tracking-[0.015em] shrink-0">Upload</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" 
+       class="mx-4 mb-4 p-3 bg-red-100 text-red-700 rounded">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Content Area: Loading, Empty State, or Receipt List -->
+  <div class="flex-1">
+    <!-- Loading State -->
+    <div *ngIf="loading" 
+         class="flex justify-center items-center p-8">
+      <div class="text-gray-500">Loading receipts...</div>
+    </div>
+
+    <!-- Empty State - Moved up, right below header -->
+    <div *ngIf="receipts.length === 0 && !loading" class="pt-5 p-5">
+      <div class="flex flex-col items-center gap-6">
+        <div
+          class="bg-center bg-no-repeat aspect-video bg-cover rounded-xl w-full max-w-[360px]"
+          style='background-image: url("https://cdn.usegalileo.ai/sdxl10/1338df6f-abba-4a5c-9342-31007ec882e6.png");'
+        ></div>
+        <div class="flex max-w-[480px] flex-col items-center gap-2">
+          <p class="text-[#111418] text-lg font-bold leading-tight tracking-[-0.015em] max-w-[480px] text-center">No receipts found</p>
+          <p class="text-[#111418] text-sm font-normal leading-normal max-w-[480px] text-center">Start uploading your grocery receipts to track your spending</p>
         </div>
+        <button
+          class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-[#f0f2f4] text-[#111418] text-sm font-bold leading-normal tracking-[0.015em]"
+        >
+          <span class="truncate">Upload Receipt</span>
+        </button>
       </div>
-  
-      <!-- 🔥 Receipt List -->
-      <div *ngIf="loading" class="text-center text-gray-500">Loading receipts...</div>
-      <div *ngIf="errorMessage" class="text-red-500">{{ errorMessage }}</div>
-  
-      <div *ngFor="let receipt of receipts" class="flex items-center gap-4 bg-white px-4 py-3 justify-between cursor-pointer hover:bg-gray-100" (click)="selectReceipt(receipt)">
+    </div>
+
+    <!-- Receipt List -->
+    <div *ngIf="receipts.length > 0" class="flex flex-col">
+      <div *ngFor="let receipt of receipts" 
+           class="flex items-center gap-4 bg-white px-4 py-3 justify-between cursor-pointer hover:bg-gray-100 border-b" 
+           (click)="selectReceipt(receipt)">
         <div class="flex items-center gap-4">
-          <div class="bg-center bg-no-repeat aspect-video bg-cover rounded-lg h-14 w-20" [style.backgroundImage]="'url(' + receipt.blobUrl + ')'"></div>
+          <div class="bg-center bg-no-repeat aspect-video bg-cover rounded-lg h-14 w-20" 
+               [style.backgroundImage]="'url(' + receipt.blobUrl + ')'">
+          </div>
           <div class="flex flex-col justify-center">
-            <p class="text-[#111418] text-base font-medium leading-normal line-clamp-1">Receipt from {{ receipt.userId }}</p>
-            <p class="text-[#637588] text-sm font-normal leading-normal line-clamp-2">${{ receipt.receiptText.split(' ')[-1] }} · {{ receipt.createdAt | date: 'MMM d, y' }}</p>
+            <p class="text-[#111418] text-base font-medium leading-normal line-clamp-1">
+              {{ extractStoreName(receipt.receiptText) }}
+            </p>
+            <p class="text-[#637588] text-sm font-normal leading-normal line-clamp-2">
+              {{ extractTotal(receipt.receiptText) | currency }} · 
+              {{ parseDateFromText(receipt.receiptText) | date:'MMM d, y' }}
+            </p>
           </div>
         </div>
         <div class="shrink-0">
-          <a [href]="receipt.blobUrl" download class="text-[#111418] flex size-7 items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+          <a [href]="receipt.blobUrl" 
+             download 
+             class="text-[#111418] flex size-7 items-center justify-center"
+             (click)="$event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
               <path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H72a8,8,0,0,1,0,16H32v64H224V136H184a8,8,0,0,1,0-16h40A16,16,0,0,1,240,136Zm-117.66-2.34a8,8,0,0,0,11.32,0l48-48a8,8,0,0,0-11.32-11.32L136,108.69V24a8,8,0,0,0-16,0v84.69L85.66,74.34A8,8,0,0,0,74.34,85.66ZM200,168a12,12,0,1,0-12,12A12,12,0,0,0,200,168Z"></path>
             </svg>
           </a>
         </div>
       </div>
-  
-      <div *ngIf="receipts.length === 0 && !loading" class="text-gray-500 text-center mt-4">
-        No receipts found.
+
+      <!-- Load More Button -->
+      <div *ngIf="hasMoreResults && !loading" 
+           class="p-4 flex justify-center">
+        <button (click)="loadMoreReceipts()"
+                [disabled]="loadingMore"
+                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400">
+          {{ loadingMore ? 'Loading...' : 'Load More' }}
+        </button>
       </div>
     </div>
-  
-   
   </div>
-  <div class="relative flex size-full min-h-screen flex-col bg-white justify-between group/design-root overflow-x-hidden" 
-  style='font-family: Manrope, "Noto Sans", sans-serif;'>
 
-<!-- Selected Receipt Viewer Modal -->
-<div *ngIf="selectedReceipt" 
-    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-y-auto p-4">
- <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
-   <!-- Modal Header -->
-   <div class="flex justify-between items-center p-4 border-b">
-     <h3 class="text-lg font-semibold">Receipt Details</h3>
-     <button (click)="closePreview()" 
-             class="text-gray-500 hover:text-gray-700">
-       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-       </svg>
-     </button>
-   </div>
+  <!-- Receipt Modal -->
+  <div *ngIf="selectedReceipt" 
+       class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 overflow-y-auto p-4">
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 class="text-lg font-semibold">Receipt Details</h3>
+        <button (click)="closePreview()" 
+                class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-   <!-- Modal Content -->
-   <div class="flex flex-col md:flex-row gap-4 p-4 overflow-y-auto">
-     <!-- Receipt Image -->
-     <div class="md:w-1/2">
+      <!-- Modal Content -->
+      <div class="flex flex-col md:flex-row gap-4 p-4 overflow-y-auto">
+        <!-- Receipt Image -->
+        <div class="md:w-1/2">
+          <app-cached-image [src]="selectedReceipt.blobUrl" 
+                           class="rounded-lg shadow-lg max-h-[60vh] w-full object-contain">
+          </app-cached-image>
+        </div>
 
-      <img [src]="selectedReceipt.blobUrl" 
-      alt="Receipt Image" 
-      class="rounded-lg shadow-lg max-h-[60vh] w-full object-contain"> 
-        
-     </div>
+        <!-- Receipt Text -->
+        <div class="md:w-1/2 font-mono text-sm whitespace-pre-wrap bg-gray-50 p-4 rounded-lg overflow-y-auto max-h-[60vh]">
+          <div class="mb-4">
+            <p class="font-bold">{{ extractStoreName(selectedReceipt.receiptText) }}</p>
+            <p class="text-gray-500">{{ parseDateFromText(selectedReceipt.receiptText) | date:'MMM d, y h:mm a' }}</p>
+          </div>
+          
+          <div class="space-y-2">
+            <ng-container *ngFor="let item of parseReceiptItems(selectedReceipt.receiptText)">
+              <div class="flex justify-between items-start">
+                <span>{{ item.name }}</span>
+                <span class="ml-4">{{ item.price | currency }}</span>
+              </div>
+            </ng-container>
+          </div>
 
-     <!-- Receipt Text -->
-     <div class="md:w-1/2 font-mono text-sm whitespace-pre-wrap bg-gray-50 p-4 rounded-lg overflow-y-auto max-h-[60vh]">
-       <div class="mb-4">
-         <p class="font-bold">{{ extractStoreName(selectedReceipt.receiptText) }}</p>
-         <p class="text-gray-500">{{ formatDate(selectedReceipt.createdAt) }}</p>
-       </div>
-       
-       <div class="space-y-2">
-         <ng-container *ngFor="let item of parseReceiptItems(selectedReceipt.receiptText)">
-           <div class="flex justify-between items-start">
-             <span>{{ item.name }}</span>
-             <span class="ml-4">${{ item.price }}</span>
-           </div>
-         </ng-container>
-       </div>
+          <div class="mt-4 pt-4 border-t">
+            <div class="flex justify-between font-bold">
+              <span>Total</span>
+              <span>{{ extractTotal(selectedReceipt.receiptText) | currency }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-       <div class="mt-4 pt-4 border-t">
-         <div class="flex justify-between font-bold">
-           <span>Total</span>
-           <span>${{ extractTotal(selectedReceipt.receiptText) }}</span>
-         </div>
-       </div>
-     </div>
-   </div>
-
-   <!-- Modal Footer -->
-   <div class="border-t p-4 flex justify-end gap-2">
-     <button (click)="closePreview()" 
-             class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
-       Close
-     </button>
-     <a [href]="selectedReceipt.blobUrl" 
-        download 
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-       Download
-     </a>
-   </div>
- </div>
+      <!-- Modal Footer -->
+      <div class="border-t p-4 flex justify-end gap-2">
+        <button (click)="closePreview()" 
+                class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          Close
+        </button>
+        <a [href]="selectedReceipt.blobUrl" 
+           download 
+           class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Download
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
