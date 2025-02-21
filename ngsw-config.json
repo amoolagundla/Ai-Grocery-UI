@@ -1,6 +1,6 @@
 {
   "appData": {
-    "version": "1.0.4"
+    "version": "1.0.5"
   },
   "index": "/index.html",
   "assetGroups": [
@@ -53,6 +53,18 @@
         "maxSize": 50,
         "maxAge": "7d",
         "timeout": "5s"
+      }
+    },
+    {
+      "name": "upload-url-bypass",
+      "urls": [
+        "https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 0,
+        "maxAge": "0s",
+        "timeout": "0s"
       }
     }
   ]
