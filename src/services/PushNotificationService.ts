@@ -62,12 +62,18 @@ export class PushNotificationService {
         console.warn('⚠️ No user email available to save token');
         return;
       }
-
+  
+      const payload = {
+        UserEmail: user.email.toLowerCase(),  // Normalize email
+        Token: token,
+        Platform: 'android'  // or 'ios'
+      };
+  
+      console.log('📤 Sending push token:', payload);
+  
       const response = await firstValueFrom(
-        this.http.post(`${this.apiUrl}/push-token`, {
-          email: user.email,
-          token: token,
-          platform: Capacitor.getPlatform() // 'ios' or 'android'
+        this.http.post(`${this.apiUrl}/push-token`, payload, {
+          headers: { 'Content-Type': 'application/json' }  // Explicitly set JSON headers
         }).pipe(
           catchError(error => {
             console.error('🔥 Error saving push token:', error);
@@ -75,10 +81,11 @@ export class PushNotificationService {
           })
         )
       );
-
+  
       console.log('✅ Push token saved successfully:', response);
     } catch (error) {
       console.error('🔥 Error in saveToken:', error);
     }
   }
+  
 }

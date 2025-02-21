@@ -114,8 +114,12 @@ export class UploadComponent {
         'x-ms-blob-type': 'BlockBlob',
         'Content-Type': this.selectedFiles[index].type,
         'x-ms-meta-email': this.userEmail || '',
-        'x-ms-meta-familyId': this.familyId || '1'
+        'x-ms-meta-familyId': this.familyId || '1',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       });
+      
 
       this.http.put(uploadUrl, this.selectedFiles[index], { headers, reportProgress: true, observe: 'events' })
         .subscribe((event: HttpEvent<any>) => {
