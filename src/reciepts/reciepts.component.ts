@@ -96,7 +96,7 @@ export class RecieptsComponent implements OnInit {
       this.continuationToken,
       this.pageSize
     ).subscribe({
-      next: (response:AsyncGenerator) => {
+      next: (response:any) => {
         this.receipts = [...this.receipts, ...response.items];
         this.continuationToken = response.continuationToken;
         this.hasMoreResults = response.hasMoreResults;
