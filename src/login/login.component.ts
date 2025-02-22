@@ -6,6 +6,7 @@ import { GoogleAuthService } from '../services/google-auth.service';
 import { Capacitor } from '@capacitor/core';
 import { CommonModule } from '@angular/common';
 
+import { PushNotificationService } from '../services/PushNotificationService';
 @Component({
   selector: 'app-login',
   standalone: true,

@@ -12,6 +12,7 @@ interface Receipt {
   userId: string;
   familyId: string;
   receiptText: string;
+  storeName:string;
   blobUrl: string;
   createdAt: string;
 }
@@ -68,7 +69,7 @@ export class RecieptsComponent implements OnInit {
     
     this.receiptsService.getReceipts(this.userEmail, this.pageSize)
       .subscribe({
-        next: (response) => {
+        next: (response:any) => {
           this.receipts = response.items;
           this.continuationToken = response.continuationToken;
           this.hasMoreResults = response.hasMoreResults;
@@ -95,7 +96,7 @@ export class RecieptsComponent implements OnInit {
       this.continuationToken,
       this.pageSize
     ).subscribe({
-      next: (response) => {
+      next: (response:AsyncGenerator) => {
         this.receipts = [...this.receipts, ...response.items];
         this.continuationToken = response.continuationToken;
         this.hasMoreResults = response.hasMoreResults;

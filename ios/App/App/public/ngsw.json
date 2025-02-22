@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1740152908989,
+  "timestamp": 1740162979783,
   "appData": {
     "version": "1.0.5"
   },
@@ -128,10 +128,10 @@
         "/assets/icons/windows11/Wide310x150Logo.scale-150.png",
         "/assets/icons/windows11/Wide310x150Logo.scale-200.png",
         "/assets/icons/windows11/Wide310x150Logo.scale-400.png",
-        "/chunk-DBCAJTRU.js",
-        "/chunk-WJZS7UAZ.js",
+        "/chunk-A4CLJ2ND.js",
+        "/chunk-QWAQR2JZ.js",
         "/index.html",
-        "/main-K3UXL7Y5.js",
+        "/main-PFA7XIXP.js",
         "/manifest.webmanifest",
         "/polyfills-FFHMD2TL.js",
         "/styles-USLPTMVG.css"
@@ -155,7 +155,8 @@
     {
       "name": "api-data",
       "patterns": [
-        "https:\\/\\/ocr-function-ai-grocery-bxgke3bjaedhckaz\\.eastus-01\\.azurewebsites\\.net\\/api\\/.*"
+        "https:\\/\\/ocr-function-ai-grocery-bxgke3bjaedhckaz\\.eastus-01\\.azurewebsites\\.net\\/api\\/[^/]*",
+        "!https:\\/\\/ocr-function-ai-grocery-bxgke3bjaedhckaz\\.eastus-01\\.azurewebsites\\.net\\/api\\/GetUploadUrlFunction[^/]*"
       ],
       "strategy": "performance",
       "maxSize": 100,
@@ -175,20 +176,6 @@
       "maxSize": 50,
       "maxAge": 604800000,
       "timeoutMs": 5000,
-      "cacheQueryOptions": {
-        "ignoreVary": true
-      },
-      "version": 1
-    },
-    {
-      "name": "upload-url-bypass",
-      "patterns": [
-        "https:\\/\\/ocr-function-ai-grocery-bxgke3bjaedhckaz\\.eastus-01\\.azurewebsites\\.net\\/api\\/GetUploadUrlFunction"
-      ],
-      "strategy": "freshness",
-      "maxSize": 0,
-      "maxAge": 0,
-      "timeoutMs": 0,
       "cacheQueryOptions": {
         "ignoreVary": true
       },
@@ -310,10 +297,10 @@
     "/assets/icons/windows11/Wide310x150Logo.scale-150.png": "9291757737b205ea3ebe54143657577182f05c35",
     "/assets/icons/windows11/Wide310x150Logo.scale-200.png": "f641d17a040760c9917d623991e632109f45b9ad",
     "/assets/icons/windows11/Wide310x150Logo.scale-400.png": "b6d015be058eb8d216dba24ce0600f7e9a599fa0",
-    "/chunk-DBCAJTRU.js": "9fcbadfc17c6922edf45b0a5b026bde605adeb98",
-    "/chunk-WJZS7UAZ.js": "fd3afb4d592f150a60c677c55161e804746146e5",
-    "/index.html": "e73d4c47cade3bfdcb04b7f466ac8a873543c6f4",
-    "/main-K3UXL7Y5.js": "7b03808debbb952e9bf11bd5238c3ba80845d303",
+    "/chunk-A4CLJ2ND.js": "b0b0c4ebfedff13c8e12357e30227ec6dea5f9ca",
+    "/chunk-QWAQR2JZ.js": "887b904b62d339206add159dbdf231d4e0feaf6c",
+    "/index.html": "297d89e6adf28ffa13efef03a6443e864fd603f8",
+    "/main-PFA7XIXP.js": "16fd590ab18667f6b412653dc05cda08e837a017",
     "/manifest.webmanifest": "91ca8a36ced55d04aafadbb0984b452d67e35210",
     "/polyfills-FFHMD2TL.js": "f49b49a155bc7d192db62a4c15d0a612b460a667",
     "/styles-USLPTMVG.css": "d85925ef591e8b56d7bf2aeb7078b3cc5079130e"
@@ -334,6 +321,14 @@
     {
       "positive": false,
       "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/api\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^https:\\/\\/ocr-function-ai-grocery-bxgke3bjaedhckaz\\.eastus-01\\.azurewebsites\\.net\\/api\\/GetUploadUrlFunction[^/]*$"
     }
   ],
   "navigationRequestStrategy": "performance"

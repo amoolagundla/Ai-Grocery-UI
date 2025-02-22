@@ -53,7 +53,7 @@
           </div>
           <div class="flex flex-col justify-center">
             <p class="text-[#111418] text-base font-medium leading-normal line-clamp-1">
-              {{ extractStoreName(receipt.receiptText) }}
+              {{ receipt.storeName  }}
             </p>
             <p class="text-[#637588] text-sm font-normal leading-normal line-clamp-2">
               {{ extractTotal(receipt.receiptText) | currency }} · 

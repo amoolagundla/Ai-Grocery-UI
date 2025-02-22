@@ -34,7 +34,8 @@
     {
       "name": "api-data",
       "urls": [
-        "https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/**"
+        "https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/*",
+        "!https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction*"
       ],
       "cacheConfig": {
         "strategy": "performance",
@@ -54,18 +55,14 @@
         "maxAge": "7d",
         "timeout": "5s"
       }
-    },
-    {
-      "name": "upload-url-bypass",
-      "urls": [
-        "https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction"
-      ],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 0,
-        "maxAge": "0s",
-        "timeout": "0s"
-      }
     }
+  ],
+  "navigationUrls": [
+    "/**",                  
+    "!/**/*.*",            
+    "!/**/*__*",            
+    "!/**/*__*/**",        
+    "!/api/**",            
+    "!https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction*"   
   ]
 }

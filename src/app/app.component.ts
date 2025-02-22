@@ -5,8 +5,6 @@ import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../services/auth.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { BottomNavComponent } from '../components/bottom-nav/bottom-nav.component';
-import { environment } from '../assets/environment';
-import { SwUpdate } from '@angular/service-worker';
 import { FamilyService } from '../services/FamilyService';
 import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
 import { StatusBarService } from '../services/StatusBarService';
@@ -16,6 +14,7 @@ import { Subscription, distinctUntilChanged, filter, take } from 'rxjs';
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent, NgIf, BottomNavComponent, CommonModule, PwaInstallComponent],
+  providers: [PushNotificationService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -29,39 +28,31 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public authService: AuthService,
     public familyService: FamilyService,
-    private updates: SwUpdate,
     private statusBar: StatusBarService,
     private pushNotificationService: PushNotificationService
   ) {
-    this.checkForUpdates();
   }
 
   ngOnInit(): void {
-    this.initializeApp();
-    this.statusBar.setStyle(this.isDark ? 'dark' : 'light');
-  }
 
+
+    // Initialize push notifications only after user is logged in
+    this.authService.user$.pipe(
+      filter(user => !!user), // Only proceed if there's a user
+      take(1) // Take only the first emission and then complete
+    ).subscribe(() => {
+      // Wait a moment before requesting permissions
+      setTimeout(() => {
+        this.initializeApp();
+        this.statusBar.setStyle(this.isDark ? 'dark' : 'light');
+      }, 2000); // Wait 2 seconds after login
+    });
+
+  }
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  private checkForUpdates() {
-    if (this.updates.isEnabled) {
-      // Add update check subscription      
-      this.updates.checkForUpdate().then((available: boolean) => {
-        if (available) {
-          this.showUpdateNotification = true;
-        }
-      });
-
-      // Add version updates subscription
-      this.subscriptions.add(
-        this.updates.versionUpdates.subscribe(() => {
-          this.showUpdateNotification = true;
-        })
-      );
-    }
-  }
 
   handleUpdate() {
     window.location.reload();
@@ -69,7 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private initializeApp() {
     this.pushNotificationService.initPushNotifications();
-    
+
     // Add user subscription with filtering
     this.subscriptions.add(
       this.authService.user$.pipe(

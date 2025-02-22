@@ -27,6 +27,7 @@
 		}
 	},
 	"packageClassList": [
+		"CAPCameraPlugin",
 		"PushNotificationsPlugin",
 		"StatusBarPlugin",
 		"GoogleAuth"
