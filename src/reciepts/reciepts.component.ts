@@ -4,15 +4,15 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ReceiptsService } from '../services/ReceiptsService';
 import { CachedImageComponent } from "../components/image-cache/CachedImageComponent";
-import { ReactiveFormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 
 interface Receipt {
   id: string;
   userId: string;
   familyId: string;
   receiptText: string;
-  storeName:string;
+  storeName: string;
   blobUrl: string;
   createdAt: string;
 }
@@ -31,6 +31,8 @@ interface Receipt {
 })
 export class RecieptsComponent implements OnInit {
   public receipts: Receipt[] = [];
+  public filteredReceipts: Receipt[] = [];
+  public searchControl = new FormControl('');
   selectedReceipt: Receipt | null = null;
   loading: boolean = true;
   loadingMore: boolean = false;
@@ -49,6 +51,8 @@ export class RecieptsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading$ = this.receiptsService.loading$;
+    
+    // Subscribe to auth user changes
     this.subscriptions.add(
       this.auth.user$.subscribe(user => {
         if (user) {
@@ -57,10 +61,33 @@ export class RecieptsComponent implements OnInit {
         }
       })
     );
+
+    // Subscribe to search input changes
+    this.subscriptions.add(
+      this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      ).subscribe(searchTerm => {
+        this.filterReceipts(searchTerm || '');
+      })
+    );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  filterReceipts(searchTerm: string): void {
+    if (!searchTerm.trim()) {
+      this.filteredReceipts = this.receipts;
+      return;
+    }
+
+    searchTerm = searchTerm.toLowerCase();
+    this.filteredReceipts = this.receipts.filter(receipt => 
+      receipt.storeName.toLowerCase().includes(searchTerm) ||
+      receipt.receiptText.toLowerCase().includes(searchTerm)
+    );
   }
 
   loadInitialReceipts(): void {
@@ -69,8 +96,9 @@ export class RecieptsComponent implements OnInit {
     
     this.receiptsService.getReceipts(this.userEmail, this.pageSize)
       .subscribe({
-        next: (response:any) => {
+        next: (response: any) => {
           this.receipts = response.items;
+          this.filteredReceipts = response.items;
           this.continuationToken = response.continuationToken;
           this.hasMoreResults = response.hasMoreResults;
           this.loading = false;
@@ -96,8 +124,10 @@ export class RecieptsComponent implements OnInit {
       this.continuationToken,
       this.pageSize
     ).subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
         this.receipts = [...this.receipts, ...response.items];
+        // Re-apply current search filter to include new items
+        this.filterReceipts(this.searchControl.value || '');
         this.continuationToken = response.continuationToken;
         this.hasMoreResults = response.hasMoreResults;
         this.loadingMore = false;

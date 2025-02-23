@@ -6,7 +6,8 @@ export interface User {
   name: string;
   email: string;
   photoURL: string;
-  familyId?: string;  // Added familyId
+  familyId?: string;
+  idToken?: string;  // Added for Google ID token
 }
 
 @Injectable({
@@ -18,25 +19,27 @@ export class AuthService {
 
   constructor() {}
 
-  /** ✅ Check if user is logged in */
   isLoggedIn(): boolean {
     return !!this.user.value;
   }
 
-  /** ✅ Store user in BehaviorSubject and persist in localStorage */
   setUser(googleUser: any): void {
     const user: User = {
       id: googleUser.sub,
       name: googleUser.name,
       email: googleUser.email,
-      photoURL: googleUser.picture
+      photoURL: googleUser.picture,
+      idToken: googleUser.credential || googleUser.authentication?.idToken // Handle both web and mobile tokens
     };
 
     localStorage.setItem('user', JSON.stringify(user));
     this.user.next(user);
   }
 
-  /** ✅ Update user's family ID */
+  getAuthToken(): string | null {
+    return this.user.value?.idToken || null;
+  }
+
   setFamilyId(familyId: string): void {
     const currentUser = this.user.value;
     if (currentUser) {
@@ -49,18 +52,15 @@ export class AuthService {
     }
   }
 
-  /** ✅ Get user's family ID */
   getFamilyId(): string | undefined {
     return this.user.value?.familyId;
   }
 
-  /** ✅ Retrieve stored user from localStorage */
   private getStoredUser(): User | null {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   }
 
-  /** ✅ Clear user data on logout */
   public logout(): void {
     localStorage.removeItem('user');
     this.user.next(null);

@@ -3,13 +3,12 @@ import { Component, OnInit, Input } from '@angular/core';
 import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../services/auth.service';
-import { Observable } from 'rxjs';
-import { UpdateNotificationComponent } from '../app/update-notification/update-notification.component';
+import { Observable } from 'rxjs'; 
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, AsyncPipe, NgIf, UpdateNotificationComponent],
+  imports: [CommonModule, AsyncPipe, NgIf],
   template: `
     <div class="sticky top-0 z-50 bg-white   flex items-center bg-white p-4 pb-2 justify-between" *ngIf="user$ | async as user">
     <div class="flex size-12 shrink-0 items-center">

@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core'; 
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ImageCacheService } from '../../services/ImageCacheService'; 
+import { ImageCacheService } from '../../services/ImageCacheService';
 import { HttpClientModule } from '@angular/common/http';
 
 @Component({
@@ -22,9 +22,7 @@ import { HttpClientModule } from '@angular/common/http';
         [class.loading]="loading"
         class="max-w-lg max-h-[80vh] rounded-lg shadow-lg"
       />
-      <div *ngIf="loading" class="loading-overlay">
-        <div class="loading-spinner"></div>
-      </div>
+       
     </div>
   `,
   styles: [`
@@ -71,7 +69,7 @@ import { HttpClientModule } from '@angular/common/http';
     }
   `]
 })
-export class CachedImageComponent implements OnInit {
+export class CachedImageComponent implements OnInit, OnChanges {
   @Input() src!: string;
   @Input() alt: string = '';
   @Input() placeholderImage: string = 'assets/placeholder.png';
@@ -79,7 +77,14 @@ export class CachedImageComponent implements OnInit {
   imageSource: string | null = null;
   loading: boolean = true;
 
-  constructor(private imageCacheService: ImageCacheService) {}
+  constructor(private imageCacheService: ImageCacheService) { }
+  ngOnChanges(changes: SimpleChanges): void {
+    const { src } = changes;
+    if (src != null && src.currentValue != null) {
+      this.imageSource = src.currentValue;
+      this.loading=false;
+    }
+  }
 
   ngOnInit(): void {
     this.loadImage();
@@ -87,16 +92,6 @@ export class CachedImageComponent implements OnInit {
 
   private loadImage(): void {
     this.loading = true;
-    this.imageCacheService.getImage(this.src).subscribe({
-      next: (base64Image) => {
-        this.imageSource = base64Image;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading image:', error);
-        this.onImageError();
-      }
-    });
   }
 
   onImageError(): void {

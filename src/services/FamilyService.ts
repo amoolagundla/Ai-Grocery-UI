@@ -72,8 +72,8 @@ export class FamilyService {
     });
   }
 
-  processInvite(inviteId: string, action: 'accept' | 'reject'): Observable<any> {
-    return this.http.post(`${this.apiUrl}/family/invites/${inviteId}/process`, { action });
+  processInvite(inviteId: string,invitedUserEmail:string, action: 'accept' | 'reject'): Observable<any> {
+    return this.http.post(`${this.apiUrl}/family/invites/${inviteId}/${invitedUserEmail}/process`, { action });
   }
 
   createFamily(familyName: string, email: string): Observable<any> {

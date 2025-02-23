@@ -6,7 +6,8 @@ import { provideAuth } from '@angular/fire/auth';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { environment } from '../assets/environment';
-import { provideHttpClient } from '@angular/common/http'; 
+import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http'; 
+import { AuthInterceptor } from '../services/AuthInterceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,7 +15,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
-    provideHttpClient()
+    provideHttpClient(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
    
   ]
 };
