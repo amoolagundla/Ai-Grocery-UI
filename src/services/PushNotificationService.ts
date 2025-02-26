@@ -28,7 +28,7 @@ export class PushNotificationService {
   async initPushNotifications(): Promise<string | undefined> {
     // Skip if already initialized or not on native platform
     if (this.hasInitialized || !Capacitor.isNativePlatform()) {
-      console.log('Skipping push notifications: Already initialized or not native platform');
+     // console.log('Skipping push notifications: Already initialized or not native platform');
       return undefined;
     }
   
@@ -47,19 +47,19 @@ export class PushNotificationService {
         });
       }
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      //  console.error('Error initializing push notifications:', error);
       return undefined;
     }
   }
   
   private async setupPushNotifications(): Promise<string | undefined> {
-    console.log('📱 Device is ready. Requesting push notification permissions...');
+    //  console.log('📱 Device is ready. Requesting push notification permissions...');
   
     try {
       const permStatus = await PushNotifications.requestPermissions();
       
       if (permStatus.receive === 'granted') {
-        console.log('✅ Push notification permission granted.');
+        //  console.log('✅ Push notification permission granted.');
         await PushNotifications.register();
         
         // Set up all listeners
@@ -71,11 +71,11 @@ export class PushNotificationService {
           });
         });
       } else {
-        console.warn('❌ Push notification permission denied.');
+         // console.warn('❌ Push notification permission denied.');
         return undefined;
       }
     } catch (error) {
-      console.error('Error setting up push notifications:', error);
+       // console.error('Error setting up push notifications:', error);
       return undefined;
     }
   }
@@ -83,20 +83,20 @@ export class PushNotificationService {
   private setupNotificationListeners() {
     // Handle token registration
     PushNotifications.addListener('registration', async (token) => {
-      console.log('📲 Push Registration Token:', token.value);
+      //  console.log('📲 Push Registration Token:', token.value);
       await this.saveToken(token.value);
     });
 
     PushNotifications.addListener('registrationError', (err) => {
-      console.error('⚠️ Push registration error:', err);
+      //  console.error('⚠️ Push registration error:', err);
     });
 
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('🔔 Notification received:', notification);
+     //   console.log('🔔 Notification received:', notification);
     });
 
     PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-      console.log('🛠️ Notification action performed:', action);
+     //   console.log('🛠️ Notification action performed:', action);
     });
   }
 
@@ -104,7 +104,7 @@ export class PushNotificationService {
     try {
       const user = await firstValueFrom(this.authService.user$);
       if (!user?.email) {
-        console.warn('⚠️ No user email available to save token');
+         // console.warn('⚠️ No user email available to save token');
         return;
       }
       
@@ -114,22 +114,22 @@ export class PushNotificationService {
         Platform: Capacitor.getPlatform() // Dynamically get platform
       };
 
-      console.log('📤 Sending push token:', payload);
+       // console.log('📤 Sending push token:', payload);
       
       const response = await firstValueFrom(
         this.http.post(`${this.apiUrl}/api/push-token`, payload, {
           headers: { 'Content-Type': 'application/json' }
         }).pipe(
           catchError(error => {
-            console.error('🔥 Error saving push token:', error);
+           //   console.error('🔥 Error saving push token:', error);
             throw error;
           })
         )
       );
 
-      console.log('✅ Push token saved successfully:', response);
+      //  console.log('✅ Push token saved successfully:', response);
     } catch (error) {
-      console.error('🔥 Error in saveToken:', error);
+      //  console.error('🔥 Error in saveToken:', error);
     }
   }
 }

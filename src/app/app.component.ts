@@ -63,15 +63,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.user$.pipe(
         filter(user => !!user?.email && !this.familyInitialized),
-        distinctUntilChanged((prev, curr) => prev?.email === curr?.email),
         take(1)
       ).subscribe(async user => {
         if (user?.email) {
+           // Initialize family with push token
+          this.initializeFamily(user.email, "");
           // Initialize push notifications first to get the token
           const token = await this.pushNotificationService.initPushNotifications();
           
-          // Initialize family with push token
-          this.initializeFamily(user.email, token);
+         
         }
       })
     );

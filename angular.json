@@ -29,15 +29,22 @@
                 "glob": "routes.json",
                 "input": "src",
                 "output": "/"
-              }, "src/favicon.ico",
+              }, 
+              "src/favicon.ico",
               "src/assets",
               "src/manifest.webmanifest"
             ],
             "styles": [
               "src/styles.css",
-              "tailwind.css"   
+              "tailwind.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "fileReplacements": [
+              {
+                "replace": "src/assets/environment.ts",
+                "with": "src/assets/environment.ts"
+              }
+            ]
           },
           "configurations": {
             "production": {
@@ -54,12 +61,18 @@
                 }
               ],
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json",
+              "fileReplacements": [
+                {
+                  "replace": "src/assets/environment.ts",
+                "with": "src/assets/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true 
             }
           },
           "defaultConfiguration": "production"
