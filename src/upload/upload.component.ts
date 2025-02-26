@@ -222,7 +222,7 @@ export class UploadComponent {
       });
       
       this.uploadErrors[index] = '';
-      const url = environment.apiUrl + `/GetUploadUrlFunction?nocache=${new Date().getTime()}`;
+      const url = environment.apiUrl + `/api/GetUploadUrlFunction?nocache=${new Date().getTime()}`;
       const response: any = await this.http.get(url).toPromise();
 
       const uploadUrl = response.uploadUrl;
