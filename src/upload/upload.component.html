@@ -37,13 +37,21 @@
     <div class="grid grid-cols-1 gap-3">
       
       <div *ngFor="let preview of imagePreviews; let i = index" class="relative">
+        <!-- Image Preview -->
         <img [src]="preview" alt="Uploaded File" class="w-full h-32 object-cover rounded-lg border border-gray-300">
-        <button (click)="removeFile(i)" class="absolute top-1 right-1 bg-red-500 text-white p-1">
+        
+        <!-- Remove Button -->
+        <button (click)="removeFile(i)" class="absolute top-1 right-1 bg-red-500 text-white p-1 rounded">
           ✕
         </button>
         
-        <!-- Progress Bar for each file -->
-        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <!-- Error Message -->
+        <div *ngIf="uploadErrors[i]" class="mt-2 p-2 bg-red-50 text-red-700 text-sm rounded border border-red-200">
+          {{ uploadErrors[i] }}
+        </div>
+        
+        <!-- Progress Bar -->
+        <div *ngIf="uploadErrors[i]" class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
           <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
             [style.width]="uploadProgress[i] + '%'">
           </div>
@@ -60,3 +68,4 @@
     </button>
   </div>
 </div>
+

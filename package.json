@@ -7,6 +7,7 @@
     "build": "ng build --configuration=production",
     "build:azure": "ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
+    "android": "npx cap run android --live-reload --host=192.168.1.94 --port=4200",
     "test": "ng test"
   },
   "private": true,

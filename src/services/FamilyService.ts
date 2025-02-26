@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs'; 
+import { environment } from '../assets/environment';
 
 export interface FamilyInvite {
   inviteId: string;
@@ -11,7 +12,11 @@ export interface FamilyInvite {
   status: string;
   createdAt: Date;
 }
-
+interface InitializeFamilyRequest {
+  email: string;
+  pushToken?: string;
+  platform?: string;
+}
 export interface Family {
    Id: string;
   familyName: string;
@@ -25,7 +30,7 @@ export interface FamilyState {
   providedIn: 'root'
 })
 export class FamilyService {
-  private apiUrl ="https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api";  
+  private apiUrl = environment.apiUrl;  
   private familyState = new BehaviorSubject<FamilyState>({
     familyId: null,
     isInitialized: false
@@ -35,8 +40,8 @@ export class FamilyService {
 
   constructor(private http: HttpClient) {}
 
-  initializeFamily(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/family/initialize`, { email }).pipe(
+  initializeFamily(request: InitializeFamilyRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/family/initialize`, request).pipe(
       tap(response => {
         this.familyState.next({
           familyId: response.familyId,

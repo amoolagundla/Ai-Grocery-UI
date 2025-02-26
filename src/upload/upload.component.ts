@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { environment } from '../assets/environment';
 
 @Component({
   selector: 'app-upload',
@@ -21,7 +22,8 @@ export class UploadComponent {
   isDraggingOver = false;
   familyId: string | null = null;
   isNative = Capacitor.isNativePlatform();
-
+  uploadErrors: { [index: number]: string } = {};
+  generalError: string | null = null;
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   ngOnInit() {
@@ -151,48 +153,114 @@ export class UploadComponent {
     this.imagePreviews.splice(index, 1);
     this.uploadProgress.splice(index, 1);
   }
-
-  async uploadFiles() {
-    if (!this.selectedFiles.length || !this.familyId) {
-      console.error('No files selected or no family ID available');
-      return;
-    }
-
-    this.uploading = true;
-    for (let i = 0; i < this.selectedFiles.length; i++) {
-      await this.uploadSingleFile(i);
-    }
-
-    this.uploading = false;
-    this.closeupload.emit(true);
-  }
+ 
 
   async uploadSingleFile(index: number) {
     try {
-      const url = `https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/GetUploadUrlFunction?nocache=${new Date().getTime()}`;
+      this.uploadErrors[index] = '';
+      const url = environment.apiUrl + `/GetUploadUrlFunction?nocache=${new Date().getTime()}`;
       const response: any = await this.http.get(url).toPromise();
 
       const uploadUrl = response.uploadUrl;
       const headers = new HttpHeaders({
-        'x-ms-blob-type': 'BlockBlob',
-        'Content-Type': this.selectedFiles[index].type,
+       "x-ms-blob-type": "BlockBlob",
+        'Content-Type': 'image/jpeg',
         'x-ms-meta-email': this.userEmail || '',
-        'x-ms-meta-familyId': this.familyId || '1',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      });
-
-      this.http.put(uploadUrl, this.selectedFiles[index], { headers, reportProgress: true, observe: 'events' })
-        .subscribe((event: HttpEvent<any>) => {
-          if (event.type === HttpEventType.UploadProgress && event.total) {
-            this.uploadProgress[index] = Math.round((100 * event.loaded) / event.total);
-          } else if (event.type === HttpEventType.Response) {
-            console.log('File uploaded successfully:', event.body);
+        'x-ms-meta-familyId': this.familyId || '1' 
+       
+      }); 
+      // Convert to Promise to better handle errors
+      await new Promise((resolve, reject) => {
+        this.http.put(uploadUrl, this.selectedFiles[index], { 
+          headers, 
+          reportProgress: true, 
+          observe: 'events'
+        }).subscribe({
+          next: (event: HttpEvent<any>) => {
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+              this.uploadProgress[index] = Math.round((100 * event.loaded) / event.total);
+            } else if (event.type === HttpEventType.Response) {
+              console.log('File uploaded successfully:', event.body);
+              delete this.uploadErrors[index];
+              resolve(event);
+            }
+          },
+          error: (error) => {
+            console.error('Upload failed:', error);
+            let errorMessage = 'Upload failed';
+            
+            // Handle different types of errors
+            if (error.status === 0) {
+              errorMessage = 'Network error - please check your connection';
+            } else if (error.status === 413) {
+              errorMessage = 'File is too large';
+            } else if (error.status === 403) {
+              errorMessage = 'Permission denied';
+            } else if (error.status === 401) {
+              errorMessage = 'Unauthorized access';
+            } else if (error.error?.message) {
+              errorMessage = error.error.message;
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+      
+            // Update the error in the next tick to ensure Angular's change detection catches it
+            setTimeout(() => {
+              this.uploadErrors[index] = errorMessage;
+              this.uploadProgress[index] = 0;
+            });
+            
+            reject(error);
+          },
+          complete: () => {
+            resolve(true);
           }
         });
-    } catch (error) {
+      });
+
+    } catch (error: any) {
       console.error('Upload failed:', error);
+      let errorMessage = 'Upload failed';
+      
+      if (error.status === 0) {
+        errorMessage = 'Network error - please check your connection';
+      } else if (error.error && error.error.message) {
+        errorMessage = error.error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      this.uploadErrors[index] = `Failed to upload ${this.selectedFiles[index].name}: ${errorMessage}`;
+      this.uploadProgress[index] = 0;
+      throw error; // Re-throw to be caught by uploadFiles
     }
   }
+
+  async uploadFiles() {
+    if (!this.selectedFiles.length || !this.familyId) {
+      this.generalError = 'No files selected or no family ID available';
+      return;
+    }
+
+    this.uploading = true;
+    this.generalError = null;
+    this.uploadErrors = {};
+
+    let hasErrors = false;
+
+    for (let i = 0; i < this.selectedFiles.length; i++) {
+      try {
+        await this.uploadSingleFile(i);
+      } catch (error) {
+        hasErrors = true;
+        // Individual file errors are already handled in uploadSingleFile
+      }
+    }
+
+    this.uploading = false;
+    
+    if (!hasErrors) {
+      this.closeupload.emit(true);
+    }
+  } 
 }

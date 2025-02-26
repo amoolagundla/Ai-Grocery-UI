@@ -29,13 +29,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.authService.getAuthToken();
     
     if (token && this.currentUser) {
-      request = request.clone({
-        setHeaders: {
-          'Authorization': `Bearer ${token}`,
-          'X-MS-CLIENT-PRINCIPAL-ID': this.currentUser.id || '',
-          'X-MS-CLIENT-PRINCIPAL-NAME': this.currentUser.email || ''
-        }
-      });
+      
     }
 
     return next.handle(request).pipe(

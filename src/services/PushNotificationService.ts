@@ -4,12 +4,13 @@ import { Capacitor } from '@capacitor/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { catchError, firstValueFrom } from 'rxjs';
+import { environment } from '../assets/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PushNotificationService {
-  private apiUrl = 'https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api';
+  private apiUrl = environment.apiUrl;
   private hasInitialized = false;
 
   constructor(
@@ -24,34 +25,36 @@ export class PushNotificationService {
     });
   }
 
-  async initPushNotifications() {
+  async initPushNotifications(): Promise<string | undefined> {
     // Skip if already initialized or not on native platform
     if (this.hasInitialized || !Capacitor.isNativePlatform()) {
       console.log('Skipping push notifications: Already initialized or not native platform');
-      return;
+      return undefined;
     }
-
+  
     console.log('🔄 Initializing Push Notifications...');
-
+  
     try {
       // Check if the device is ready
       if (document.readyState === 'complete') {
-        await this.setupPushNotifications();
+        return await this.setupPushNotifications();
       } else {
-        document.addEventListener('deviceready', async () => {
-          await this.setupPushNotifications();
+        return new Promise((resolve) => {
+          document.addEventListener('deviceready', async () => {
+            const token = await this.setupPushNotifications();
+            resolve(token);
+          });
         });
       }
-      
-      this.hasInitialized = true;
     } catch (error) {
       console.error('Error initializing push notifications:', error);
+      return undefined;
     }
   }
-
-  private async setupPushNotifications() {
+  
+  private async setupPushNotifications(): Promise<string | undefined> {
     console.log('📱 Device is ready. Requesting push notification permissions...');
-
+  
     try {
       const permStatus = await PushNotifications.requestPermissions();
       
@@ -61,12 +64,19 @@ export class PushNotificationService {
         
         // Set up all listeners
         this.setupNotificationListeners();
+        // Get the token immediately
+        return new Promise<string>((resolve) => {
+          PushNotifications.addListener('registration', token => {
+            resolve(token.value);
+          });
+        });
       } else {
         console.warn('❌ Push notification permission denied.');
-        return;
+        return undefined;
       }
     } catch (error) {
       console.error('Error setting up push notifications:', error);
+      return undefined;
     }
   }
 
@@ -107,7 +117,7 @@ export class PushNotificationService {
       console.log('📤 Sending push token:', payload);
       
       const response = await firstValueFrom(
-        this.http.post(`${this.apiUrl}/push-token`, payload, {
+        this.http.post(`${this.apiUrl}/api/push-token`, payload, {
           headers: { 'Content-Type': 'application/json' }
         }).pipe(
           catchError(error => {

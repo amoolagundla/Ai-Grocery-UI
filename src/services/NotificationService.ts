@@ -22,7 +22,7 @@ export class NotificationService {
         this.authService.user$.subscribe(user => {
 
             if (user?.email) {
-                this.updatePendingInvites(user.email);
+                //this.updatePendingInvites(user.email);
             }
         }); 
         

@@ -4,7 +4,7 @@ import { environment } from './src/assets/environment';
 const config: CapacitorConfig = {
   appId: 'com.AI.AIGroceryApp',
   appName: 'AI-Grocery-APP',
-  webDir: 'dist/browser',
+  webDir: 'dist/browser', 
   plugins: {
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],

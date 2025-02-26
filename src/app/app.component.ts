@@ -10,6 +10,7 @@ import { PwaInstallComponent } from "../pwainstall/pwainstall.component";
 import { StatusBarService } from '../services/StatusBarService';
 import { PushNotificationService } from '../services/PushNotificationService';
 import { Subscription, distinctUntilChanged, filter, take } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
@@ -58,28 +59,35 @@ export class AppComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
-  private initializeApp() {
-    this.pushNotificationService.initPushNotifications();
-
-    // Add user subscription with filtering
+  private initializeApp() { 
     this.subscriptions.add(
       this.authService.user$.pipe(
         filter(user => !!user?.email && !this.familyInitialized),
         distinctUntilChanged((prev, curr) => prev?.email === curr?.email),
         take(1)
-      ).subscribe(user => {
+      ).subscribe(async user => {
         if (user?.email) {
-          this.initializeFamily(user.email);
+          // Initialize push notifications first to get the token
+          const token = await this.pushNotificationService.initPushNotifications();
+          
+          // Initialize family with push token
+          this.initializeFamily(user.email, token);
         }
       })
     );
   }
-
-  private initializeFamily(email: string) {
+  
+  private initializeFamily(email: string, pushToken?: string) {
     if (this.familyInitialized) return;
-
+  
+    const request = {
+      email,
+      pushToken,
+      platform: Capacitor.getPlatform()
+    };
+  
     this.subscriptions.add(
-      this.familyService.initializeFamily(email).subscribe({
+      this.familyService.initializeFamily(request).subscribe({
         next: (response) => {
           console.log('Family initialized:', response);
           if (response && response.familyId) {
