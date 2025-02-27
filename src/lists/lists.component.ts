@@ -27,6 +27,7 @@ export class ListsComponent implements OnInit {
   addedItems: Map<string, string> = new Map();
   loading$: any;
   private subscriptions = new Subscription();
+  userEmail!: string;
 
   constructor(
     private fb: FormBuilder,
@@ -47,6 +48,7 @@ export class ListsComponent implements OnInit {
       this.authService.user$.subscribe(user => {
         if (user?.familyId) {
           this.familyId = user.familyId;
+          this.userEmail = user.email;
           this.loadPreviousLists();
         }
       })

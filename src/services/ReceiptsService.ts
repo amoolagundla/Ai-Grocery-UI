@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError, finalize } from 'rxjs/operators';
+import { environment } from '../assets/environment';
 
 export interface Receipt {
   id: string;
@@ -23,7 +24,7 @@ export interface PaginatedResponse {
   providedIn: 'root'
 })
 export class ReceiptsService {
-  private apiBaseUrl = 'https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api';
+  private apiBaseUrl = environment.apiUrl;
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
 

@@ -35,7 +35,7 @@ export interface FamilyState {
   providedIn: 'root'
 })
 export class FamilyService {
-  private apiUrl = environment.apiUrl+'/api';
+  private apiUrl = environment.apiUrl;
   
   private familyState = new BehaviorSubject<FamilyState>({
     familyId: null,

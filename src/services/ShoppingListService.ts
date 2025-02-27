@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, EMPTY } from 'rxjs';
 import { tap, catchError, finalize } from 'rxjs/operators';
+import { environment } from '../assets/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShoppingListService {
-  private apiBaseUrl = 'https://ocr-function-ai-grocery-bxgke3bjaedhckaz.eastus-01.azurewebsites.net/api/family';
+  private apiBaseUrl = environment.apiUrl;
   private listsSubject = new BehaviorSubject<any[]>([]);
   public isLoading = new BehaviorSubject<boolean>(false);
 
@@ -15,7 +16,7 @@ export class ShoppingListService {
 
   private fetchFromApi(familyId: string): Observable<any> {
     this.isLoading.next(true);
-    return this.http.get(`${this.apiBaseUrl}/${familyId}/shoppingLists`).pipe(
+    return this.http.get(`${this.apiBaseUrl}/family/${familyId}/shoppingLists`).pipe(
       tap(data => this.listsSubject.next(data as any[])),
       catchError(error => {
         console.error('Error fetching shopping lists:', error);
