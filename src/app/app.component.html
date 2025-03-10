@@ -1,8 +1,25 @@
+ 
 
-<app-header [showUpdateNotification]="showUpdateNotification" *ngIf="authService.isLoggedIn()"></app-header>
-<div class="pb-16">  <!-- ✅ Ensure space at bottom -->
-    <router-outlet></router-outlet>
+
+
+<!-- app.component.html -->
+<div class="app-container">
+  <!-- Loading spinner overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p>Initializing...</p>
+    </div>
   </div>
 
-  <app-pwa-install></app-pwa-install>
-<app-bottom-nav *ngIf="authService.isLoggedIn()"></app-bottom-nav> 
+  
+  <app-header *ngIf="authService.user$ | async"></app-header>
+  
+  <!-- Main content -->
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+  
+  <!-- Bottom navigation -->
+  <app-bottom-nav *ngIf="authService.user$ | async"></app-bottom-nav> 
+</div>

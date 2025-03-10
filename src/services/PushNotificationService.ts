@@ -117,7 +117,7 @@ export class PushNotificationService {
        // console.log('📤 Sending push token:', payload);
       
       const response = await firstValueFrom(
-        this.http.post(`${this.apiUrl}/api/push-token`, payload, {
+        this.http.post(`${this.apiUrl}/push-token`, payload, {
           headers: { 'Content-Type': 'application/json' }
         }).pipe(
           catchError(error => {

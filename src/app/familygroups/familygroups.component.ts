@@ -56,7 +56,7 @@ export class FamilygroupsComponent implements OnInit {
     if (familyId) {
       const familySub = this.familyService.getFamilyDetails(familyId).subscribe({
         next: (family: any) => {
-          this.currentFamily = family[0];
+          this.currentFamily = Array.isArray(family) ? family[0] : family;
           this.loading = false;
         },
         error: (error: any) => {
@@ -72,7 +72,8 @@ export class FamilygroupsComponent implements OnInit {
   fetchInvites(email: string) {
     const invitesSub = this.familyService.getPendingInvites(email).subscribe({
       next: (invites: any) => {
-        this.invites = invites;
+      // Ensure invites is always an array
+      this.invites = Array.isArray(invites) ? invites : [];
       },
       error: (error: any) => {
         this.error = 'Failed to load invites';
