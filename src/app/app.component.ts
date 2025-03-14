@@ -24,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'AI-Grocery-App';
   isDark = false;
   showUpdateNotification = false;
-  isLoading = true; // Add loading state
+  isLoading = false; // Add loading state
   private subscriptions = new Subscription();
   private familyInitialized = false;
 

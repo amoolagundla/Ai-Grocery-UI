@@ -84,9 +84,9 @@ export class ListsComponent implements OnInit {
     this.subscriptions.add(
       this.shoppingListService.getShoppingLists(this.familyId).subscribe({
         next: (data) => {
-          this.previousLists = data;
+          this.previousLists = data[0].StoreItems;
           if (data.length > 0) {
-            this.storeItems = data[0].storeItems;
+            this.storeItems = data[0].StoreItems;
             if (!this.selectedStore && this.getStoreNames().length > 0) {
               this.filterByStore(this.getStoreNames()[0]);
             }
